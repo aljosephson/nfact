@@ -42,11 +42,12 @@ nfact
 ├────file.do
 │    
 ├────country & state       /* one dir for each state / national survey */
-│    ├──cleaning_code        
-│    ├──regression_code
-│    └──output
-│       ├──tables
-│       └──figures
+|    ├──sub-state          /* one dir for each sub survey within a state */
+│       ├──cleaning_code        
+│       ├──regression_code
+│       └──output
+│          ├──tables
+│          └──figures
 │
 │────Analysis              /* overall analysis */
 │    ├──code
