@@ -1,0 +1,796 @@
+{smcl}
+{txt}{sf}{ul off}{.-}
+      name:  {res}<unnamed>
+       {txt}log:  {res}C:\Users\aljosephson\Dropbox\COVID\UVM/10July_progchalworrypersp-log.smcl
+  {txt}log type:  {res}smcl
+ {txt}opened on:  {res}10 Jul 2020, 15:22:47
+{txt}
+{com}. 
+. * **********************************************************************
+. * 1 - program uses variables (long)
+. * **********************************************************************
+. 
+. * looking at food security variables
+. * using long data set           
+. 
+. use             "C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_9July.dta", clear 
+{txt}
+{com}.         *** this is the "long" dataset where T1 and T2 are stacked 
+.         
+. **** SNAP ****  
+.         
+. * create variables to compare year and last 30          
+.         gen             source_snap_comp_year30 = . 
+{txt}(2,472 missing values generated)
+
+{com}.         replace         source_snap_comp_year30 = source_snap_year if period == 1
+{txt}(1,235 real changes made)
+
+{com}.         replace         source_snap_comp_year30 = prog_snap if period == 2
+{txt}(1,233 real changes made)
+
+{com}.         tab             source_snap_comp_year30
+
+{txt}source_snap {c |}
+_comp_year3 {c |}
+          0 {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+          0 {c |}{res}      2,163       87.64       87.64
+{txt}          1 {c |}{res}        305       12.36      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}      2,468      100.00
+{txt}
+{com}.         ttest           source_snap_comp_year30, by (period)
+
+{txt}Two-sample t test with equal variances
+{hline 9}{c TT}{hline 68}
+   Group{col 10}{c |}{col 16}Obs{col 27}Mean{col 35}Std. Err.{col 47}Std. Dev.{col 59}[95% Conf. Interval]
+{hline 9}{c +}{hline 68}
+       1 {c |}{res}{col 12}  1,235{col 22} .1125506{col 34} .0089968{col 46} .3161707{col 58} .0948999{col 70} .1302013
+       {txt}2 {c |}{res}{col 12}  1,233{col 22}  .134631{col 34} .0097245{col 46} .3414675{col 58} .1155525{col 70} .1537094
+{txt}{hline 9}{c +}{hline 68}
+combined {c |}{res}{col 12}  2,468{col 22} .1235818{col 34}  .006626{col 46} .3291706{col 58} .1105888{col 70} .1365749
+{txt}{hline 9}{c +}{hline 68}
+    diff {c |}{res}{col 22}-.0220804{col 34} .0132471{col 58} -.048057{col 70} .0038963
+{txt}{hline 9}{c BT}{hline 68}
+    diff = mean({res}1{txt}) - mean({res}2{txt})                                      t = {res} -1.6668
+{txt}Ho: diff = 0                                     degrees of freedom = {res}    2466
+
+    {txt}Ha: diff < 0                 Ha: diff != 0                 Ha: diff > 0
+ Pr(T < t) = {res}0.0478         {txt}Pr(|T| > |t|) = {res}0.0957          {txt}Pr(T > t) = {res}0.9522
+{txt}
+{com}.         *** marginally statistically different
+.         *** Pr(|T| > |t|) = 0.0957  
+. 
+. * create variables to compare covid and last 30
+.         gen             source_snap_comp_covid30 = . 
+{txt}(2,472 missing values generated)
+
+{com}.         replace         source_snap_comp_covid30 = source_snap_covid if period == 1
+{txt}(1,235 real changes made)
+
+{com}.         replace         source_snap_comp_covid30 = prog_snap if period == 2
+{txt}(1,233 real changes made)
+
+{com}.         tab             source_snap_comp_covid30
+
+{txt}source_snap {c |}
+_comp_covid {c |}
+         30 {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+          0 {c |}{res}      2,192       88.82       88.82
+{txt}          1 {c |}{res}        276       11.18      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}      2,468      100.00
+{txt}
+{com}.         ttest           source_snap_comp_covid30, by (period)
+
+{txt}Two-sample t test with equal variances
+{hline 9}{c TT}{hline 68}
+   Group{col 10}{c |}{col 16}Obs{col 27}Mean{col 35}Std. Err.{col 47}Std. Dev.{col 59}[95% Conf. Interval]
+{hline 9}{c +}{hline 68}
+       1 {c |}{res}{col 12}  1,235{col 22} .0890688{col 34} .0081086{col 46} .2849585{col 58} .0731606{col 70} .1049771
+       {txt}2 {c |}{res}{col 12}  1,233{col 22}  .134631{col 34} .0097245{col 46} .3414675{col 58} .1155525{col 70} .1537094
+{txt}{hline 9}{c +}{hline 68}
+combined {c |}{res}{col 12}  2,468{col 22} .1118314{col 34} .0063452{col 46} .3152228{col 58}  .099389{col 70} .1242739
+{txt}{hline 9}{c +}{hline 68}
+    diff {c |}{res}{col 22}-.0455622{col 34} .0126598{col 58} -.070387{col 70}-.0207373
+{txt}{hline 9}{c BT}{hline 68}
+    diff = mean({res}1{txt}) - mean({res}2{txt})                                      t = {res} -3.5990
+{txt}Ho: diff = 0                                     degrees of freedom = {res}    2466
+
+    {txt}Ha: diff < 0                 Ha: diff != 0                 Ha: diff > 0
+ Pr(T < t) = {res}0.0002         {txt}Pr(|T| > |t|) = {res}0.0003          {txt}Pr(T > t) = {res}0.9998
+{txt}
+{com}.         *** statistically different
+.         *** Pr(|T| > |t|) = 0.0003
+.                 
+. * non-respondents to these questions in all periods     
+.         count           if source_snap_year != . & source_snap_covid != . & prog_snap != .
+  {res}0
+{txt}
+{com}.         *** 0 did not respond to all three periods
+.         *** this is as expected - we assume that non-respond corresponds with 0
+.         *** could investgiate this assumption more deeply, perhaps 
+.         
+. * create non-respondent variable 
+.         gen             non_respon_snap = 0 if source_snap_year != . & source_snap_covid != . & prog_snap != .
+{txt}(2,472 missing values generated)
+
+{com}.         replace         non_respon_snap = 0 if source_snap_year != . & source_snap_covid != . & period == 1
+{txt}(1,235 real changes made)
+
+{com}.         replace         non_respon_snap = 0 if prog_snap != . & period == 2
+{txt}(1,233 real changes made)
+
+{com}.         replace         non_respon_snap = 1 if non_respon_snap == . 
+{txt}(4 real changes made)
+
+{com}.         *** 4 do not respond to all three questions 
+.         
+. * do non-respondents differ in food security outcomes
+.         *ttest          source_snap_comp_year30, by (non_respon_snap)
+.         *ttest          source_snap_comp_covid30, by (non_respon_snap) 
+.         *** not enough variation to do this 
+. 
+. **** WIC ****   
+.         
+. * create variables to compare year and last 30          
+.         gen             source_wic_comp_year30 = . 
+{txt}(2,472 missing values generated)
+
+{com}.         replace         source_wic_comp_year30 = source_wic_year if period == 1
+{txt}(1,235 real changes made)
+
+{com}.         replace         source_wic_comp_year30 = prog_wic if period == 2
+{txt}(1,233 real changes made)
+
+{com}.         tab             source_wic_comp_year30
+
+{txt}source_wic_ {c |}
+comp_year30 {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+          0 {c |}{res}      2,307       93.48       93.48
+{txt}          1 {c |}{res}        161        6.52      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}      2,468      100.00
+{txt}
+{com}.         ttest           source_wic_comp_year30, by (period)
+
+{txt}Two-sample t test with equal variances
+{hline 9}{c TT}{hline 68}
+   Group{col 10}{c |}{col 16}Obs{col 27}Mean{col 35}Std. Err.{col 47}Std. Dev.{col 59}[95% Conf. Interval]
+{hline 9}{c +}{hline 68}
+       1 {c |}{res}{col 12}  1,235{col 22} .0680162{col 34} .0071673{col 46} .2518757{col 58} .0539548{col 70} .0820775
+       {txt}2 {c |}{res}{col 12}  1,233{col 22} .0624493{col 34} .0068938{col 46}  .242068{col 58} .0489245{col 70} .0759741
+{txt}{hline 9}{c +}{hline 68}
+combined {c |}{res}{col 12}  2,468{col 22}  .065235{col 34} .0049717{col 46} .2469901{col 58} .0554858{col 70} .0749842
+{txt}{hline 9}{c +}{hline 68}
+    diff {c |}{res}{col 22} .0055669{col 34} .0099448{col 58}-.0139342{col 70}  .025068
+{txt}{hline 9}{c BT}{hline 68}
+    diff = mean({res}1{txt}) - mean({res}2{txt})                                      t = {res}  0.5598
+{txt}Ho: diff = 0                                     degrees of freedom = {res}    2466
+
+    {txt}Ha: diff < 0                 Ha: diff != 0                 Ha: diff > 0
+ Pr(T < t) = {res}0.7122         {txt}Pr(|T| > |t|) = {res}0.5757          {txt}Pr(T > t) = {res}0.2878
+{txt}
+{com}.         *** not statistically different
+.         *** Pr(|T| > |t|) = 0.5757 
+. 
+. * create variables to compare covid and last 30
+.         gen             source_wic_comp_covid30 = . 
+{txt}(2,472 missing values generated)
+
+{com}.         replace         source_wic_comp_covid30 = source_wic_covid if period == 1
+{txt}(1,235 real changes made)
+
+{com}.         replace         source_wic_comp_covid30 = prog_wic if period == 2
+{txt}(1,233 real changes made)
+
+{com}.         tab             source_wic_comp_covid30
+
+{txt}source_wic_ {c |}
+comp_covid3 {c |}
+          0 {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+          0 {c |}{res}      2,327       94.29       94.29
+{txt}          1 {c |}{res}        141        5.71      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}      2,468      100.00
+{txt}
+{com}.         ttest           source_wic_comp_covid30, by (period)
+
+{txt}Two-sample t test with equal variances
+{hline 9}{c TT}{hline 68}
+   Group{col 10}{c |}{col 16}Obs{col 27}Mean{col 35}Std. Err.{col 47}Std. Dev.{col 59}[95% Conf. Interval]
+{hline 9}{c +}{hline 68}
+       1 {c |}{res}{col 12}  1,235{col 22} .0518219{col 34} .0063102{col 46}  .221757{col 58} .0394419{col 70} .0642018
+       {txt}2 {c |}{res}{col 12}  1,233{col 22} .0624493{col 34} .0068938{col 46}  .242068{col 58} .0489245{col 70} .0759741
+{txt}{hline 9}{c +}{hline 68}
+combined {c |}{res}{col 12}  2,468{col 22} .0571313{col 34} .0046728{col 46} .2321403{col 58} .0479682{col 70} .0662943
+{txt}{hline 9}{c +}{hline 68}
+    diff {c |}{res}{col 22}-.0106274{col 34} .0093451{col 58}-.0289524{col 70} .0076975
+{txt}{hline 9}{c BT}{hline 68}
+    diff = mean({res}1{txt}) - mean({res}2{txt})                                      t = {res} -1.1372
+{txt}Ho: diff = 0                                     degrees of freedom = {res}    2466
+
+    {txt}Ha: diff < 0                 Ha: diff != 0                 Ha: diff > 0
+ Pr(T < t) = {res}0.1278         {txt}Pr(|T| > |t|) = {res}0.2556          {txt}Pr(T > t) = {res}0.8722
+{txt}
+{com}.         *** not statistically different
+.         *** Pr(|T| > |t|) = 0.2556 
+. 
+. * non-respondents to these questions in all periods     
+.         count           if source_wic_year != . & source_wic_covid != . & prog_wic != .
+  {res}0
+{txt}
+{com}.         *** 0 did not respond to all three periods
+.         *** this is as expected - we assume that non-respond corresponds with 0
+.         *** could investgiate this assumption more deeply, perhaps 
+.         
+. * create non-respondent variable 
+.         gen             non_respon_wic = 0 if source_wic_year != . & source_wic_covid != . & prog_wic != .
+{txt}(2,472 missing values generated)
+
+{com}.         replace         non_respon_wic = 0 if source_wic_year != . & source_wic_covid != . & period == 1
+{txt}(1,235 real changes made)
+
+{com}.         replace         non_respon_wic = 0 if prog_wic != . & period == 2
+{txt}(1,233 real changes made)
+
+{com}.         replace         non_respon_wic = 1 if non_respon_wic == . 
+{txt}(4 real changes made)
+
+{com}.         *** 4 do not respond to all three
+.         *** aligns with above
+.         
+. * do non-respondents differ in wic outcomes
+.         *ttest          source_wic_comp_year30, by (non_respon_snap)
+.         *ttest          source_wic_comp_covid30, by (non_respon_snap) 
+.         *** not enough variation to do this 
+.         
+. **** SCHOOL ****        
+.         
+. * create variables to compare year and last 30          
+.         gen             source_school_comp_year30 = . 
+{txt}(2,472 missing values generated)
+
+{com}.         replace         source_school_comp_year30 = source_school_year if period == 1
+{txt}(1,235 real changes made)
+
+{com}.         replace         source_school_comp_year30 = prog_school if period == 2
+{txt}(1,234 real changes made)
+
+{com}.         tab             source_school_comp_year30
+
+{txt}source_scho {c |}
+ol_comp_yea {c |}
+        r30 {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+          0 {c |}{res}      2,127       86.15       86.15
+{txt}          1 {c |}{res}        342       13.85      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}      2,469      100.00
+{txt}
+{com}.         ttest           source_school_comp_year30, by (period)
+
+{txt}Two-sample t test with equal variances
+{hline 9}{c TT}{hline 68}
+   Group{col 10}{c |}{col 16}Obs{col 27}Mean{col 35}Std. Err.{col 47}Std. Dev.{col 59}[95% Conf. Interval]
+{hline 9}{c +}{hline 68}
+       1 {c |}{res}{col 12}  1,235{col 22}  .157085{col 34} .0103586{col 46} .3640283{col 58} .1367626{col 70} .1774075
+       {txt}2 {c |}{res}{col 12}  1,234{col 22} .1199352{col 34} .0092523{col 46} .3250174{col 58} .1017832{col 70} .1380871
+{txt}{hline 9}{c +}{hline 68}
+combined {c |}{res}{col 12}  2,469{col 22} .1385176{col 34} .0069535{col 46} .3455124{col 58} .1248823{col 70} .1521529
+{txt}{hline 9}{c +}{hline 68}
+    diff {c |}{res}{col 22} .0371499{col 34} .0138897{col 58} .0099132{col 70} .0643865
+{txt}{hline 9}{c BT}{hline 68}
+    diff = mean({res}1{txt}) - mean({res}2{txt})                                      t = {res}  2.6746
+{txt}Ho: diff = 0                                     degrees of freedom = {res}    2467
+
+    {txt}Ha: diff < 0                 Ha: diff != 0                 Ha: diff > 0
+ Pr(T < t) = {res}0.9962         {txt}Pr(|T| > |t|) = {res}0.0075          {txt}Pr(T > t) = {res}0.0038
+{txt}
+{com}.         *** statistically different
+.         *** Pr(|T| > |t|) = 0.0075 
+. 
+. * create variables to compare covid and last 30
+.         gen             source_school_comp_covid30 = . 
+{txt}(2,472 missing values generated)
+
+{com}.         replace         source_school_comp_covid30 = source_school_covid if period == 1
+{txt}(1,235 real changes made)
+
+{com}.         replace         source_school_comp_covid30 = prog_school if period == 2
+{txt}(1,234 real changes made)
+
+{com}.         tab             source_school_comp_covid30
+
+{txt}source_scho {c |}
+ol_comp_cov {c |}
+       id30 {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+          0 {c |}{res}      2,182       88.38       88.38
+{txt}          1 {c |}{res}        287       11.62      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}      2,469      100.00
+{txt}
+{com}.         ttest           source_school_comp_covid30, by (period)
+
+{txt}Two-sample t test with equal variances
+{hline 9}{c TT}{hline 68}
+   Group{col 10}{c |}{col 16}Obs{col 27}Mean{col 35}Std. Err.{col 47}Std. Dev.{col 59}[95% Conf. Interval]
+{hline 9}{c +}{hline 68}
+       1 {c |}{res}{col 12}  1,235{col 22} .1125506{col 34} .0089968{col 46} .3161707{col 58} .0948999{col 70} .1302013
+       {txt}2 {c |}{res}{col 12}  1,234{col 22} .1199352{col 34} .0092523{col 46} .3250174{col 58} .1017832{col 70} .1380871
+{txt}{hline 9}{c +}{hline 68}
+combined {c |}{res}{col 12}  2,469{col 22} .1162414{col 34} .0064517{col 46} .3205791{col 58} .1035901{col 70} .1288927
+{txt}{hline 9}{c +}{hline 68}
+    diff {c |}{res}{col 22}-.0073846{col 34} .0129052{col 58}-.0326907{col 70} .0179215
+{txt}{hline 9}{c BT}{hline 68}
+    diff = mean({res}1{txt}) - mean({res}2{txt})                                      t = {res} -0.5722
+{txt}Ho: diff = 0                                     degrees of freedom = {res}    2467
+
+    {txt}Ha: diff < 0                 Ha: diff != 0                 Ha: diff > 0
+ Pr(T < t) = {res}0.2836         {txt}Pr(|T| > |t|) = {res}0.5672          {txt}Pr(T > t) = {res}0.7164
+{txt}
+{com}.         *** statistically different
+.         *** Pr(|T| > |t|) = 0.0075 
+. 
+. * non-respondents to these questions in all periods     
+.         count           if source_school_year != . & source_school_covid != . & prog_school != .
+  {res}0
+{txt}
+{com}.         *** 0 did not respond to all three periods
+.         *** this is as expected - we assume that non-respond corresponds with 0
+.         *** could investgiate this assumption more deeply, perhaps 
+.         
+. * create non-respondent variable 
+.         gen             non_respon_school = 0 if source_school_year != . & source_school_covid != . & prog_school != .
+{txt}(2,472 missing values generated)
+
+{com}.         replace         non_respon_school = 0 if source_school_year != . & source_school_covid != . & period == 1
+{txt}(1,235 real changes made)
+
+{com}.         replace         non_respon_school = 0 if prog_school != . & period == 2
+{txt}(1,234 real changes made)
+
+{com}.         replace         non_respon_school = 1 if non_respon_school == . 
+{txt}(3 real changes made)
+
+{com}.         *** 3 do not respond to all three
+.         
+. * do non-respondents differ in school outcomes
+.         *ttest          source_school_comp_year30, by (non_respon_school)
+.         *ttest          source_school_comp_covid30, by (non_respon_school) 
+.         *** not enough variation to do this 
+. 
+.         
+. **** PANTRY ****        
+.         
+. * create variables to compare year and last 30          
+.         gen             source_pantry_comp_year30 = . 
+{txt}(2,472 missing values generated)
+
+{com}.         replace         source_pantry_comp_year30 = source_pantry_year if period == 1
+{txt}(1,235 real changes made)
+
+{com}.         replace         source_pantry_comp_year30 = prog_pantry if period == 2
+{txt}(1,233 real changes made)
+
+{com}.         tab             source_pantry_comp_year30
+
+{txt}source_pant {c |}
+ry_comp_yea {c |}
+        r30 {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+          0 {c |}{res}      2,261       91.61       91.61
+{txt}          1 {c |}{res}        207        8.39      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}      2,468      100.00
+{txt}
+{com}.         ttest           source_pantry_comp_year30, by (period)
+
+{txt}Two-sample t test with equal variances
+{hline 9}{c TT}{hline 68}
+   Group{col 10}{c |}{col 16}Obs{col 27}Mean{col 35}Std. Err.{col 47}Std. Dev.{col 59}[95% Conf. Interval]
+{hline 9}{c +}{hline 68}
+       1 {c |}{res}{col 12}  1,235{col 22} .0842105{col 34} .0079054{col 46} .2778158{col 58}  .068701{col 70}   .09972
+       {txt}2 {c |}{res}{col 12}  1,233{col 22} .0835361{col 34}  .007883{col 46} .2768031{col 58} .0680706{col 70} .0990016
+{txt}{hline 9}{c +}{hline 68}
+combined {c |}{res}{col 12}  2,468{col 22} .0838736{col 34} .0055809{col 46} .2772543{col 58} .0729298{col 70} .0948174
+{txt}{hline 9}{c +}{hline 68}
+    diff {c |}{res}{col 22} .0006744{col 34} .0111641{col 58}-.0212175{col 70} .0225664
+{txt}{hline 9}{c BT}{hline 68}
+    diff = mean({res}1{txt}) - mean({res}2{txt})                                      t = {res}  0.0604
+{txt}Ho: diff = 0                                     degrees of freedom = {res}    2466
+
+    {txt}Ha: diff < 0                 Ha: diff != 0                 Ha: diff > 0
+ Pr(T < t) = {res}0.5241         {txt}Pr(|T| > |t|) = {res}0.9518          {txt}Pr(T > t) = {res}0.4759
+{txt}
+{com}.         *** not statistically different
+.         *** Pr(|T| > |t|) = 0.9518  
+. 
+. * create variables to compare covid and last 30
+.         gen             source_pantry_comp_covid30 = . 
+{txt}(2,472 missing values generated)
+
+{com}.         replace         source_pantry_comp_covid30 = source_pantry_covid if period == 1
+{txt}(1,235 real changes made)
+
+{com}.         replace         source_pantry_comp_covid30 = prog_pantry if period == 2
+{txt}(1,233 real changes made)
+
+{com}.         tab             source_pantry_comp_covid30
+
+{txt}source_pant {c |}
+ry_comp_cov {c |}
+       id30 {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+          0 {c |}{res}      2,305       93.40       93.40
+{txt}          1 {c |}{res}        163        6.60      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}      2,468      100.00
+{txt}
+{com}.         ttest           source_pantry_comp_covid30, by (period)
+
+{txt}Two-sample t test with equal variances
+{hline 9}{c TT}{hline 68}
+   Group{col 10}{c |}{col 16}Obs{col 27}Mean{col 35}Std. Err.{col 47}Std. Dev.{col 59}[95% Conf. Interval]
+{hline 9}{c +}{hline 68}
+       1 {c |}{res}{col 12}  1,235{col 22}  .048583{col 34} .0061203{col 46} .2150817{col 58} .0365757{col 70} .0605903
+       {txt}2 {c |}{res}{col 12}  1,233{col 22} .0835361{col 34}  .007883{col 46} .2768031{col 58} .0680706{col 70} .0990016
+{txt}{hline 9}{c +}{hline 68}
+combined {c |}{res}{col 12}  2,468{col 22} .0660454{col 34} .0050003{col 46} .2484117{col 58} .0562401{col 70} .0758507
+{txt}{hline 9}{c +}{hline 68}
+    diff {c |}{res}{col 22}-.0349531{col 34} .0099779{col 58}-.0545191{col 70}-.0153871
+{txt}{hline 9}{c BT}{hline 68}
+    diff = mean({res}1{txt}) - mean({res}2{txt})                                      t = {res} -3.5030
+{txt}Ho: diff = 0                                     degrees of freedom = {res}    2466
+
+    {txt}Ha: diff < 0                 Ha: diff != 0                 Ha: diff > 0
+ Pr(T < t) = {res}0.0002         {txt}Pr(|T| > |t|) = {res}0.0005          {txt}Pr(T > t) = {res}0.9998
+{txt}
+{com}.         *** statistically different
+.         *** Pr(|T| > |t|) = 0.0005 
+. 
+. * non-respondents to these questions in all periods     
+.         count           if source_pantry_year != . & source_pantry_covid != . & prog_pantry != .
+  {res}0
+{txt}
+{com}.         *** 0 did not respond to all three periods
+.         *** this is as expected - we assume that non-respond corresponds with 0
+.         *** could investgiate this assumption more deeply, perhaps 
+.         
+. * create non-respondent variable 
+.         gen             non_respon_pantry = 0 if source_pantry_year != . & source_pantry_covid != . & prog_pantry != .
+{txt}(2,472 missing values generated)
+
+{com}.         replace         non_respon_pantry = 0 if source_pantry_year != . & source_pantry_covid != . & period == 1
+{txt}(1,235 real changes made)
+
+{com}.         replace         non_respon_pantry = 0 if prog_pantry != . & period == 2
+{txt}(1,233 real changes made)
+
+{com}.         replace         non_respon_pantry = 1 if non_respon_pantry == . 
+{txt}(4 real changes made)
+
+{com}.         *** 4 do not respond to all three
+.         
+. * do non-respondents differ in school outcomes
+.         *ttest          source_pantry_comp_year30, by (non_respon_pantry)
+.         *ttest          source_pantry_comp_covid30, by (non_respon_pantry) 
+.         *** not enough variation to do this 
+.         
+. * save again    
+.         save            "C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_10July.dta", replace 
+{txt}file C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_10July.dta saved
+
+{com}. 
+. * **********************************************************************
+. * 2 - programs variables (wide)
+. * **********************************************************************
+. 
+. * using wide data set 
+. 
+.         use             "C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_9July_wide.dta", clear
+{txt}
+{com}.         *** this is the "wide" dataset where T1 and T2 are next to each other - like in Excel data  
+. 
+. **** SNAP ****          
+.         
+. * non-respondents to these questions in all periods     
+.         count           if source_snap_year_T1 != . & source_snap_covid_T1 != . & prog_snap_T2 != .
+  {res}1,232
+{txt}
+{com}.         *** 1232 did not respond to all three periods
+.         *** likely related to non-responses / non-use of programs
+.         *** could replace with 0, in line with long data 
+.         
+. * create variable to determine movement in status between year and covid        
+.         gen             source_snap_yearcov = 1 if source_snap_year_T1 == 0 & source_snap_covid_T1 == 1
+{txt}(1,222 missing values generated)
+
+{com}.         replace         source_snap_yearcov = 0 if source_snap_year_T1 == 0 & source_snap_covid_T1 == 0
+{txt}(1,082 real changes made)
+
+{com}.         replace         source_snap_yearcov = 2 if source_snap_year_T1 == 1 & source_snap_covid_T1 == 1
+{txt}(96 real changes made)
+
+{com}.         replace         source_snap_yearcov = -1 if source_snap_year_T1 == 1 & source_snap_covid_T1 == 0
+{txt}(43 real changes made)
+
+{com}.         label           var source_snap_yearcov "-1 if become stop use, 0 if use both periods, 1 if begin use, 2 if always use"
+{txt}
+{com}. 
+. * create variable to determine movement in status between covid and last 30     
+.         gen             source_snap_cov30 = 1 if prog_snap_T2 == 1 & source_snap_covid_T1 == 0
+{txt}(1,176 missing values generated)
+
+{com}.         replace         source_snap_cov30 = 0 if prog_snap_T2 == 0 & source_snap_covid_T1 == 0
+{txt}(1,062 real changes made)
+
+{com}.         replace         source_snap_cov30 = 2 if prog_snap_T2 == 1 & source_snap_covid_T1 == 1
+{txt}(106 real changes made)
+
+{com}.         replace         source_snap_cov30 = -1 if prog_snap_T2 == 0 & source_snap_covid_T1 == 1
+{txt}(4 real changes made)
+
+{com}.         label           var source_snap_cov30 "-1 if become stop use, 0 if use both periods, 1 if begin use, 2 if always use"
+{txt}
+{com}.         
+. **** WIC ****           
+.         
+. * non-respondents to these questions in all periods     
+.         count           if source_wic_year_T1 != . & source_wic_covid_T1 != . & prog_wic_T2 != .
+  {res}1,232
+{txt}
+{com}.         *** 1232 did not respond to all three periods, same as above
+.         *** likely related to non-responses / non-use of programs
+.         *** could replace with 0, in line with long data 
+.         
+. * create variable to determine movement in status between year and covid        
+.         gen             source_wic_yearcov = 1 if source_wic_covid_T1 == 1 & source_wic_year_T1 == 0
+{txt}(1,232 missing values generated)
+
+{com}.         replace         source_wic_yearcov = 0 if source_wic_covid_T1 == 0 & source_wic_year_T1 == 0
+{txt}(1,147 real changes made)
+
+{com}.         replace         source_wic_yearcov = 2 if source_wic_covid_T1 == 1 & source_wic_year_T1 == 1
+{txt}(60 real changes made)
+
+{com}.         replace         source_wic_yearcov = -1 if source_wic_covid_T1 == 0 & source_wic_year_T1 == 1
+{txt}(24 real changes made)
+
+{com}.         label           var source_wic_yearcov "-1 if become stop use, 0 if use both periods, 1 if begin use, 2 if always use"
+{txt}
+{com}. 
+. * create variable to determine movement in status between covid and last 30     
+.         gen             source_wic_cov30 = 1 if prog_wic_T2 == 1 & source_wic_covid_T1 == 0
+{txt}(1,222 missing values generated)
+
+{com}.         replace         source_wic_cov30 = 0 if prog_wic_T2 == 0 & source_wic_covid_T1 == 0
+{txt}(1,154 real changes made)
+
+{com}.         replace         source_wic_cov30 = 2 if prog_wic_T2 == 1 & source_wic_covid_T1 == 1
+{txt}(63 real changes made)
+
+{com}.         replace         source_wic_cov30 = -1 if prog_wic_T2 == 0 & source_wic_covid_T1 == 1
+{txt}(1 real change made)
+
+{com}.         label           var source_wic_cov30 "-1 if become stop use, 0 if use both periods, 1 if begin use, 2 if always use"
+{txt}
+{com}. 
+. **** SCHOOL ****                
+.         
+. * non-respondents to these questions in all periods     
+.         count           if source_school_year_T1 != . & source_school_covid_T1 != . & prog_school_T2 != .
+  {res}1,233
+{txt}
+{com}.         *** 1233 did not respond to all three periods, similar to above
+.         *** likely related to non-responses / non-use of programs
+.         *** could replace with 0, in line with long data 
+.         
+. * create variable to determine movement in status between year and covid        
+.         gen             source_school_yearcov = 1 if source_school_covid_T1 == 1 & source_school_year_T1 == 0
+{txt}(1,197 missing values generated)
+
+{com}.         replace         source_school_yearcov = 0 if source_school_covid_T1 == 0 & source_school_year_T1 == 0
+{txt}(1,002 real changes made)
+
+{com}.         replace         source_school_yearcov = 2 if source_school_covid_T1 == 1 & source_school_year_T1 == 1
+{txt}(100 real changes made)
+
+{com}.         replace         source_school_yearcov = -1 if source_school_covid_T1 == 0 & source_school_year_T1 == 1
+{txt}(94 real changes made)
+
+{com}.         label           var source_school_yearcov "-1 if become stop use, 0 if use both periods, 1 if begin use, 2 if always use"
+{txt}
+{com}. 
+. * create variable to determine movement in status between covid and last 30     
+.         gen             source_school_cov30 = 1 if prog_school_T2 == 1 & source_school_covid_T1 == 0
+{txt}(1,198 missing values generated)
+
+{com}.         replace         source_school_cov30 = 0 if prog_school_T2 == 0 & source_school_covid_T1 == 0
+{txt}(1,056 real changes made)
+
+{com}.         replace         source_school_cov30 = 2 if prog_school_T2 == 1 & source_school_covid_T1 == 1
+{txt}(110 real changes made)
+
+{com}.         replace         source_school_cov30 = -1 if prog_school_T2 == 0 & source_school_covid_T1 == 1
+{txt}(29 real changes made)
+
+{com}.         label           var source_school_cov30 "-1 if become stop use, 0 if use both periods, 1 if begin use, 2 if always use"
+{txt}
+{com}. 
+. **** PANTRY ****                
+.         
+. * non-respondents to these questions in all periods     
+.         count           if source_pantry_year_T1 != . & source_pantry_covid_T1 != . & prog_pantry_T2 != .
+  {res}1,232
+{txt}
+{com}.         *** 1232 did not respond to all three periods, same as above
+.         *** likely related to non-responses / non-use of programs
+.         *** could replace with 0, in line with long data 
+.         
+. * create variable to determine movement in status between year and covid        
+.         gen             source_pantry_yearcov = 1 if source_pantry_covid_T1 == 1 & source_pantry_year_T1 == 0
+{txt}(1,219 missing values generated)
+
+{com}.         replace         source_pantry_yearcov = 0 if source_pantry_covid_T1 == 0 & source_pantry_year_T1 == 0
+{txt}(1,114 real changes made)
+
+{com}.         replace         source_pantry_yearcov = 2 if source_pantry_covid_T1 == 1 & source_pantry_year_T1 == 1
+{txt}(43 real changes made)
+
+{com}.         replace         source_pantry_yearcov = -1 if source_pantry_covid_T1 == 0 & source_pantry_year_T1 == 1
+{txt}(61 real changes made)
+
+{com}.         label           var source_pantry_yearcov "-1 if become stop use, 0 if use both periods, 1 if begin use, 2 if always use"
+{txt}
+{com}. 
+. * create variable to determine movement in status between covid and last 30     
+.         gen             source_pantry_cov30 = 1 if prog_pantry_T2 == 1 & source_pantry_covid_T1 == 0
+{txt}(1,171 missing values generated)
+
+{com}.         replace         source_pantry_cov30 = 0 if prog_pantry_T2 == 0 & source_pantry_covid_T1 == 0
+{txt}(1,108 real changes made)
+
+{com}.         replace         source_pantry_cov30 = 2 if prog_pantry_T2 == 1 & source_pantry_covid_T1 == 1
+{txt}(38 real changes made)
+
+{com}.         replace         source_pantry_cov30 = -1 if prog_pantry_T2 == 0 & source_pantry_covid_T1 == 1
+{txt}(21 real changes made)
+
+{com}.         label           var source_pantry_cov30 "-1 if become stop use, 0 if use both periods, 1 if begin use, 2 if always use"
+{txt}
+{com}.         
+. * save again 
+.         save            "C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_10July_wide.dta", replace
+{txt}file C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_10July_wide.dta saved
+
+{com}. 
+. * **********************************************************************
+. * 3 - preliminary attrition analysis 
+. * **********************************************************************
+. 
+. **** SNAP ****          
+. 
+. * generate variable for attriters
+. * people who do not respond to all three 
+.         gen             non_respon_snap = 0 if source_snap_year_T1 != . & source_snap_covid_T1 != . & prog_snap_T2 != .
+{txt}(4 missing values generated)
+
+{com}.         replace         non_respon_snap = 1 if non_respon_snap == .
+{txt}(4 real changes made)
+
+{com}.         tab                     non_respon_snap
+
+{txt}non_respon_ {c |}
+       snap {c |}      Freq.     Percent        Cum.
+{hline 12}{c +}{hline 35}
+          0 {c |}{res}      1,232       99.68       99.68
+{txt}          1 {c |}{res}          4        0.32      100.00
+{txt}{hline 12}{c +}{hline 35}
+      Total {c |}{res}      1,236      100.00
+{txt}
+{com}.         *** 4
+.         *** some differences in phrasing / asking of questions across rounds, which might cause some of the differences
+.         
+. * basic regs to test for attrition      
+. 
+. * include female, white Hispanic, white race, year born, income, income change 
+. * something odd happens with income T2 - unsure - so just use T1 
+.         reg             non_respon_snap female white year_born_T1 race_white_T1 income_T1 income_change_T2
+
+{txt}      Source {c |}       SS           df       MS      Number of obs   ={res}     1,148
+{txt}{hline 13}{c +}{hline 34}   F(6, 1141)      = {res}     0.63
+{txt}       Model {c |} {res} .009957157         6  .001659526   {txt}Prob > F        ={res}    0.7024
+{txt}    Residual {c |} {res} 2.98220312     1,141  .002613675   {txt}R-squared       ={res}    0.0033
+{txt}{hline 13}{c +}{hline 34}   Adj R-squared   ={res}   -0.0019
+{txt}       Total {c |} {res} 2.99216028     1,147  .002608684   {txt}Root MSE        =   {res} .05112
+
+{txt}{hline 14}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}non_respon_~p{col 15}{c |}      Coef.{col 27}   Std. Err.{col 39}      t{col 47}   P>|t|{col 55}     [95% Con{col 68}f. Interval]
+{hline 14}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 7}female {c |}{col 15}{res}{space 2} .0028683{col 27}{space 2}  .003816{col 38}{space 1}    0.75{col 47}{space 3}0.452{col 55}{space 4}-.0046189{col 68}{space 3} .0103555
+{txt}{space 8}white {c |}{col 15}{res}{space 2} .0025816{col 27}{space 2}  .009921{col 38}{space 1}    0.26{col 47}{space 3}0.795{col 55}{space 4}-.0168839{col 68}{space 3} .0220471
+{txt}{space 1}year_born_T1 {c |}{col 15}{res}{space 2} 3.82e-06{col 27}{space 2}  .000098{col 38}{space 1}    0.04{col 47}{space 3}0.969{col 55}{space 4}-.0001884{col 68}{space 3}  .000196
+{txt}race_white_T1 {c |}{col 15}{res}{space 2} .0019156{col 27}{space 2} .0082455{col 38}{space 1}    0.23{col 47}{space 3}0.816{col 55}{space 4}-.0142624{col 68}{space 3} .0180937
+{txt}{space 4}income_T1 {c |}{col 15}{res}{space 2}-.0009964{col 27}{space 2} .0008486{col 38}{space 1}   -1.17{col 47}{space 3}0.241{col 55}{space 4}-.0026613{col 68}{space 3} .0006685
+{txt}income_chan~2 {c |}{col 15}{res}{space 2} .0035653{col 27}{space 2} .0032315{col 38}{space 1}    1.10{col 47}{space 3}0.270{col 55}{space 4} -.002775{col 68}{space 3} .0099057
+{txt}{space 8}_cons {c |}{col 15}{res}{space 2}-.0086853{col 27}{space 2} .1930122{col 38}{space 1}   -0.04{col 47}{space 3}0.964{col 55}{space 4}-.3873839{col 68}{space 3} .3700134
+{txt}{hline 14}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}.         *** income_T1 and income_change_T2 have non-responses - so maybe not included in subsequent 
+.         *** no wild about this regression - not a lot of variation with only four non-respondents
+.         *** no significant bias 
+. 
+. * include female, white Hispanic, white race, year born, income 
+.         reg             non_respon_snap female white year_born_T1 race_white_T1 income_T1 
+
+{txt}      Source {c |}       SS           df       MS      Number of obs   ={res}     1,205
+{txt}{hline 13}{c +}{hline 34}   F(5, 1199)      = {res}     0.52
+{txt}       Model {c |} {res} .008626148         5   .00172523   {txt}Prob > F        ={res}    0.7613
+{txt}    Residual {c |} {res} 3.97809584     1,199  .003317845   {txt}R-squared       ={res}    0.0022
+{txt}{hline 13}{c +}{hline 34}   Adj R-squared   ={res}   -0.0020
+{txt}       Total {c |} {res} 3.98672199     1,204  .003311231   {txt}Root MSE        =   {res}  .0576
+
+{txt}{hline 14}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}non_respon_~p{col 15}{c |}      Coef.{col 27}   Std. Err.{col 39}      t{col 47}   P>|t|{col 55}     [95% Con{col 68}f. Interval]
+{hline 14}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 7}female {c |}{col 15}{res}{space 2} .0041676{col 27}{space 2} .0042318{col 38}{space 1}    0.98{col 47}{space 3}0.325{col 55}{space 4}-.0041349{col 68}{space 3} .0124702
+{txt}{space 8}white {c |}{col 15}{res}{space 2} .0025952{col 27}{space 2} .0107802{col 38}{space 1}    0.24{col 47}{space 3}0.810{col 55}{space 4}-.0185549{col 68}{space 3} .0237453
+{txt}{space 1}year_born_T1 {c |}{col 15}{res}{space 2}-.0001142{col 27}{space 2} .0001072{col 38}{space 1}   -1.07{col 47}{space 3}0.287{col 55}{space 4}-.0003245{col 68}{space 3} .0000961
+{txt}race_white_T1 {c |}{col 15}{res}{space 2} .0022257{col 27}{space 2} .0091634{col 38}{space 1}    0.24{col 47}{space 3}0.808{col 55}{space 4}-.0157523{col 68}{space 3} .0202038
+{txt}{space 4}income_T1 {c |}{col 15}{res}{space 2}-.0005761{col 27}{space 2} .0009277{col 38}{space 1}   -0.62{col 47}{space 3}0.535{col 55}{space 4}-.0023963{col 68}{space 3}  .001244
+{txt}{space 8}_cons {c |}{col 15}{res}{space 2} .2223598{col 27}{space 2} .2114451{col 38}{space 1}    1.05{col 47}{space 3}0.293{col 55}{space 4}-.1924838{col 68}{space 3} .6372033
+{txt}{hline 14}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}.         *** no change from above 
+.         *** no significant bias
+. 
+. * include female, white Hispanic, white race, year born
+.         reg             non_respon_snap female white year_born_T1 race_white_T1 
+
+{txt}      Source {c |}       SS           df       MS      Number of obs   ={res}     1,227
+{txt}{hline 13}{c +}{hline 34}   F(4, 1222)      = {res}     0.54
+{txt}       Model {c |} {res} .007060653         4  .001765163   {txt}Prob > F        ={res}    0.7049
+{txt}    Residual {c |} {res} 3.97989941     1,222  .003256873   {txt}R-squared       ={res}    0.0018
+{txt}{hline 13}{c +}{hline 34}   Adj R-squared   ={res}   -0.0015
+{txt}       Total {c |} {res} 3.98696007     1,226  .003252007   {txt}Root MSE        =   {res} .05707
+
+{txt}{hline 14}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}non_respon_~p{col 15}{c |}      Coef.{col 27}   Std. Err.{col 39}      t{col 47}   P>|t|{col 55}     [95% Con{col 68}f. Interval]
+{hline 14}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 7}female {c |}{col 15}{res}{space 2} .0042765{col 27}{space 2} .0041408{col 38}{space 1}    1.03{col 47}{space 3}0.302{col 55}{space 4}-.0038474{col 68}{space 3} .0124004
+{txt}{space 8}white {c |}{col 15}{res}{space 2}   .00197{col 27}{space 2} .0101505{col 38}{space 1}    0.19{col 47}{space 3}0.846{col 55}{space 4}-.0179442{col 68}{space 3} .0218843
+{txt}{space 1}year_born_T1 {c |}{col 15}{res}{space 2}-.0001076{col 27}{space 2} .0001052{col 38}{space 1}   -1.02{col 47}{space 3}0.307{col 55}{space 4} -.000314{col 68}{space 3} .0000988
+{txt}race_white_T1 {c |}{col 15}{res}{space 2} .0021874{col 27}{space 2} .0087772{col 38}{space 1}    0.25{col 47}{space 3}0.803{col 55}{space 4}-.0150325{col 68}{space 3} .0194074
+{txt}{space 8}_cons {c |}{col 15}{res}{space 2} .2074965{col 27}{space 2} .2074294{col 38}{space 1}    1.00{col 47}{space 3}0.317{col 55}{space 4}-.1994606{col 68}{space 3} .6144536
+{txt}{hline 14}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}.         *** no change from above 
+.         *** no significant bias
+.         
+. * save again 
+.         save            "C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_10July_wide.dta", replace
+{txt}file C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_10July_wide.dta saved
+
+{com}. 
+. * **********************************************************************
+. * 3 - end matter
+. * **********************************************************************
+. 
+. * save new datasets as appropriate 
+. * should be saved above 
+. 
+. * close the log
+.         log     close
+      {txt}name:  {res}<unnamed>
+       {txt}log:  {res}C:\Users\aljosephson\Dropbox\COVID\UVM/10July_progchalworrypersp-log.smcl
+  {txt}log type:  {res}smcl
+ {txt}closed on:  {res}10 Jul 2020, 15:22:47
+{txt}{.-}
+{smcl}
+{txt}{sf}{ul off}
