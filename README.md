@@ -2,7 +2,7 @@
 
 This README describes the directory structure & should enable users to replicate code associated with NFACT work. NFACT is a collaborative, interdisciplinary multi-state research effort that uses common measurement tools, codebooks, code, data aggregation tools, and outreach materials to collectively examine and communicate the effect of COVID-19 on household food access and security.
 
-DOI: https://zenodo.org/badge/latestdoi/279348981
+<a href="https://zenodo.org/badge/latestdoi/279348981"><img src="https://zenodo.org/badge/279348981.svg" alt="DOI"></a>
 
 ## Index
 
