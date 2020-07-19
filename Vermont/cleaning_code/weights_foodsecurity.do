@@ -5,6 +5,7 @@
 
 * does
 	* implements survey weights on education
+	* implements survey weights with gender
 	* examines food security variables with weights 
 	* updates file related to excel "panel_analysis" 
 
@@ -51,13 +52,49 @@
 	svyset 		education_T1 [pweight=educationweight]
 	*** to compare variables, use regular command for unweighted, preface with svy for weighted
 	*** not all commands allowed SPECIFICALLY no ttest, etc. 
+
+* set gender weighted
+* follows:
+	* Women should be 0.5070 of population in VT, represented in sample by 0.794, so weight = 0.638539043
+	* Men should be 0.493 of population in VT, represented in sample by 0.206, so weight = 2.393203883
+
+* create weight variable
+	gen 		genderweight = .
+	replace		genderweight = 0.638539043 if female == 1
+	replace		genderweight = 2.393203883 if female == 0 
+	*** grouped by binary version of gender 
 	
 * **********************************************************************
 * 2 - unbalanced  
 * **********************************************************************
 
 * want to compare status at various points
+* education weights 
 
+* last year to since covid	
+	tab 		food_sec_yearcov
+	svy:		tab food_sec_yearcov
+
+* food security bin last year 
+	tab 		food_sec_year_bin_T1
+	svy: 		tab food_sec_year_bin_T1
+
+* food security bin covid 
+	tab 		food_sec_covid_bin_T1
+	svy: 		tab food_sec_covid_bin_T1
+
+* food security bin last 30 
+	tab 		food_sec_last30_bin_T2
+	svy: 		tab food_sec_last30_bin_T2
+	
+* covid to last 30 
+	tab 		food_sec_cov30
+	svy: 		tab food_sec_cov30
+	
+* reset weights 
+* gender weights
+	svyset 		female [pweight=genderweight]	
+	
 * last year to since covid	
 	tab 		food_sec_yearcov
 	svy:		tab food_sec_yearcov
@@ -87,7 +124,7 @@
 
 * using wide data set (need to open again, saved unbalanced weights above)
 
-	use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_10July_wide.dta", clear 
+	use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_19July_wide.dta", clear 
 
 * set education weights 
 * follows: 
@@ -107,6 +144,17 @@
 * not sure if this makes a difference - do not need to re-create variable for weights
 * but it seems like it might matter given population is a component of weighting 
 
+* set gender weighted
+* follows:
+	* Women should be 0.5070 of population in VT, represented in sample by 0.794, so weight = 0.638539043
+	* Men should be 0.493 of population in VT, represented in sample by 0.206, so weight = 2.393203883
+
+* create weight variable
+	gen 		genderweight = .
+	replace		genderweight = 0.638539043 if female == 1
+	replace		genderweight = 2.393203883 if female == 0 
+	*** grouped by binary version of gender 
+
 * so want to drop attriters 	
 	drop 		if non_respon_food_sec == 1
 	*** should drop 43 observations 
@@ -115,6 +163,30 @@
 	svyset 		education_T1 [pweight=educationweight]
 	*** to compare variables, use regular command for unweighted, preface with svy for weighted
 	*** not all commands allowed SPECIFICALLY no ttest, etc. 
+	
+* reset weights 
+* gender weights
+	svyset 		female [pweight=genderweight]	
+	
+* last year to since covid	
+	tab 		food_sec_yearcov
+	svy:		tab food_sec_yearcov
+
+* food security bin last year 
+	tab 		food_sec_year_bin_T1
+	svy: 		tab food_sec_year_bin_T1
+
+* food security bin covid 
+	tab 		food_sec_covid_bin_T1
+	svy: 		tab food_sec_covid_bin_T1
+
+* food security bin last 30 
+	tab 		food_sec_last30_bin_T2
+	svy: 		tab food_sec_last30_bin_T2
+	
+* covid to last 30 
+	tab 		food_sec_cov30
+	svy: 		tab food_sec_cov30
 	
 * **********************************************************************
 * 4 - balanced  
