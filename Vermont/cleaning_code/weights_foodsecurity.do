@@ -64,6 +64,14 @@
 	replace		genderweight = 2.393203883 if female == 0 
 	*** grouped by binary version of gender 
 	
+* set multiple weights
+* create new variables
+* not sure if this is the correct process - but trying it for now
+	gen			educgenweight = . 
+	gen 		educgen = . 
+	replace		educgenweight = educationweight * genderweight
+	replace		educgen = education_T1 * female 
+	
 * **********************************************************************
 * 2 - unbalanced  
 * **********************************************************************
@@ -114,12 +122,37 @@
 * covid to last 30 
 	tab 		food_sec_cov30
 	svy: 		tab food_sec_cov30
+	
+* reset weights
+* gender and education weights
+	svyset 		educgen [pweight=educgenweight]
+	
+* last year to since covid	
+	tab 		food_sec_yearcov
+	svy:		tab food_sec_yearcov
+
+* food security bin last year 
+	tab 		food_sec_year_bin_T1
+	svy: 		tab food_sec_year_bin_T1
+
+* food security bin covid 
+	tab 		food_sec_covid_bin_T1
+	svy: 		tab food_sec_covid_bin_T1
+
+* food security bin last 30 
+	tab 		food_sec_last30_bin_T2
+	svy: 		tab food_sec_last30_bin_T2
+	
+* covid to last 30 
+	tab 		food_sec_cov30
+	svy: 		tab food_sec_cov30
+
 
 * save - updated file with weights	
 	save 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_wide_weights-unbal.dta", replace 
 	
 * **********************************************************************
-* 3 - create balanced weight variable and set weights 
+* 3 - create balanced variables and set weights 
 * **********************************************************************
 
 * using wide data set (need to open again, saved unbalanced weights above)
@@ -155,6 +188,14 @@
 	replace		genderweight = 2.393203883 if female == 0 
 	*** grouped by binary version of gender 
 
+* set multiple weights
+* create new variables
+* not sure if this is the correct process - but trying it for now
+	gen			educgenweight = . 
+	gen 		educgen = . 
+	replace		educgenweight = educationweight * genderweight
+	replace		educgen = education_T1 * female 
+
 * so want to drop attriters 	
 	drop 		if non_respon_food_sec == 1
 	*** should drop 43 observations 
@@ -188,12 +229,10 @@
 	tab 		food_sec_cov30
 	svy: 		tab food_sec_cov30
 	
-* **********************************************************************
-* 4 - balanced  
-* **********************************************************************
-
-* want to compare status at various points
-
+* reset weights 
+* gender and education weights
+	svyset 		educgen [pweight=educgenweight]
+	
 * last year to since covid	
 	tab 		food_sec_yearcov
 	svy:		tab food_sec_yearcov
