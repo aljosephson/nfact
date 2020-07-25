@@ -20,7 +20,7 @@
 
 * open log
 	cap 		log close
-	log 		using 	"C:\Users\aljosephson\Dropbox\COVID\UVM/18July_worry-log", append
+	log 		using 	"C:\Users\aljosephson\Dropbox\COVID\UVM/worry-log", append
 
 * **********************************************************************
 * 1 - program uses variables (long)
@@ -30,15 +30,15 @@
 * using long data set 		
 * only have T1 and T2 (not T1 year and T1 covid)
 
-use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_17July.dta", clear 
+use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_25July.dta", clear 
 	*** this is the "long" dataset where T1 and T2 are stacked 
 	
 **** ENOUGH FOOD ****	
 	
 * create variables to compare two time periods 		
 	gen 		worry_enoughfood_comp = . 
-	encode		worry_enoughfood, generate(worry_enoughfoode)
-	label 		var worry_enoughfoode "encoded version of worry_enoughfood"
+	destring	worry_enoughfood, generate(worry_enoughfoode)
+	label 		var worry_enoughfoode "destrung version of worry_enoughfood"
 	replace 	worry_enoughfood_comp = worry_enoughfoode if period == 1
 	replace 	worry_enoughfood_comp = worry_enoughfoode if period == 2
 	tab 		worry_enoughfood_comp
@@ -50,8 +50,8 @@ use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_17July.dta", clear
 	
 * create variables to compare two time periods 		
 	gen 		worry_foodexp_comp = . 
-	encode		worry_foodexp, generate(worry_foodexpe)
-	label 		var worry_enoughfoode "encoded version of worry_foodexp"
+	destring	worry_foodexp, generate(worry_foodexpe)
+	label 		var worry_enoughfoode "destrung version of worry_foodexp"
 	replace 	worry_foodexp_comp = worry_foodexpe if period == 1
 	replace 	worry_foodexp_comp = worry_foodexpe if period == 2
 	tab 		worry_foodexp_comp
@@ -63,8 +63,8 @@ use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_17July.dta", clear
 	
 * create variables to compare two time periods 		
 	gen 		worry_foodunsafe_comp = . 
-	encode		worry_foodunsafe, generate(worry_foodunsafee)
-	label 		var worry_enoughfoode "encoded version of worry_foodunsafe"
+	destring	worry_foodunsafe, generate(worry_foodunsafee)
+	label 		var worry_enoughfoode "destrung version of worry_foodunsafe"
 	replace 	worry_foodunsafe_comp = worry_foodunsafee if period == 1
 	replace 	worry_foodunsafe_comp = worry_foodunsafee if period == 2
 	tab 		worry_foodunsafe_comp
@@ -76,8 +76,8 @@ use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_17July.dta", clear
 	
 * create variables to compare two time periods 		
 	gen 		worry_programs_comp = . 
-	encode		worry_programs, generate(worry_programse)
-	label 		var worry_enoughfoode "encoded version of worry_programs"
+	destring	worry_programs, generate(worry_programse)
+	label 		var worry_enoughfoode "destrung version of worry_programs"
 	replace 	worry_programs_comp = worry_programse if period == 1
 	replace 	worry_programs_comp = worry_programse if period == 2
 	tab 		worry_programs_comp
@@ -89,8 +89,8 @@ use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_17July.dta", clear
 	
 * create variables to compare two time periods 		
 	gen 		worry_income_comp = . 
-	encode		worry_income, generate(worry_incomee)
-	label 		var worry_incomee "encoded version of worry_income"
+	destring	worry_income, generate(worry_incomee)
+	label 		var worry_incomee "destrung version of worry_income"
 	replace 	worry_income_comp = worry_incomee if period == 1
 	replace 	worry_income_comp = worry_incomee if period == 2
 	tab 		worry_income_comp
@@ -102,8 +102,8 @@ use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_17July.dta", clear
 	
 * create variables to compare two time periods 		
 	gen 		worry_housefood_comp = . 
-	encode		worry_housefood, generate(worry_housefoode)
-	label 		var worry_housefoode "encoded version of worry_housefood"
+	destring	worry_housefood, generate(worry_housefoode)
+	label 		var worry_housefoode "destrung version of worry_housefood"
 	replace 	worry_housefood_comp = worry_housefoode if period == 1
 	replace 	worry_housefood_comp = worry_housefoode if period == 2
 	tab 		worry_housefood_comp
@@ -112,7 +112,7 @@ use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_17July.dta", clear
 	*** z =   8.269, Prob > |z| =   0.0000
 
 * save 	
-	save 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_18July.dta", replace 
+	save 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_25July.dta", replace 
 
 * **********************************************************************
 * 2 - programs variables (wide)
@@ -120,14 +120,14 @@ use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_17July.dta", clear
 
 * using wide data set 
 
-	use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_17July_wide.dta", clear
+	use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_25July_wide.dta", clear
 	*** this is the "wide" dataset where T1 and T2 are next to each other - like in Excel data  
 
 **** ENOUGH FOOD ****		
 
-* need to encode
-	encode 		worry_enoughfood_T1, generate (worry_enoughfood_T1e)
-	encode 		worry_enoughfood_T2, generate (worry_enoughfood_T2e)
+* need to destring
+	destring 	worry_enoughfood_T1, generate (worry_enoughfood_T1e)
+	destring	worry_enoughfood_T2, generate (worry_enoughfood_T2e)
 	
 * non-respondents to these questions in all periods	
 	count 		if worry_enoughfood_T1e != . & worry_enoughfood_T2e != .
@@ -148,9 +148,9 @@ use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_17July.dta", clear
 
 **** FOOD EXP ****		
 
-* need to encode
-	encode 		worry_foodexp_T1, generate (worry_foodexp_T1e)
-	encode 		worry_foodexp_T2, generate (worry_foodexp_T2e)
+* need to destring
+	destring	worry_foodexp_T1, generate (worry_foodexp_T1e)
+	destring	worry_foodexp_T2, generate (worry_foodexp_T2e)
 	
 * non-respondents to these questions in all periods	
 	count 		if worry_foodexp_T1e != . & worry_foodexp_T2e != .
@@ -171,9 +171,9 @@ use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_17July.dta", clear
 
 **** FOOD UNSAFE ****		
 
-* need to encode
-	encode 		worry_foodunsafe_T1, generate (worry_foodunsafe_T1e)
-	encode 		worry_foodunsafe_T2, generate (worry_foodunsafe_T2e)
+* need to destring
+	destring	worry_foodunsafe_T1, generate (worry_foodunsafe_T1e)
+	destring	worry_foodunsafe_T2, generate (worry_foodunsafe_T2e)
 	
 * non-respondents to these questions in all periods	
 	count 		if worry_foodunsafe_T1e != . & worry_foodunsafe_T2e != .
@@ -194,9 +194,9 @@ use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_17July.dta", clear
 
 **** PROGRAMS ****		
 
-* need to encode
-	encode 		worry_programs_T1, generate (worry_programs_T1e)
-	encode 		worry_programs_T2, generate (worry_programs_T2e)
+* need to destring
+	destring	worry_programs_T1, generate (worry_programs_T1e)
+	destring	worry_programs_T2, generate (worry_programs_T2e)
 	
 * non-respondents to these questions in all periods	
 	count 		if worry_programs_T1e != . & worry_programs_T2e != .
@@ -212,9 +212,9 @@ use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_17July.dta", clear
 	
 **** INCOME ****		
 
-* need to encode
-	encode 		worry_income_T1, generate (worry_income_T1e)
-	encode 		worry_income_T2, generate (worry_income_T2e)
+* need to destring
+	destring	worry_income_T1, generate (worry_income_T1e)
+	destring	worry_income_T2, generate (worry_income_T2e)
 	
 * non-respondents to these questions in all periods	
 	count 		if worry_income_T1e != . & worry_income_T2e != .
@@ -235,9 +235,9 @@ use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_17July.dta", clear
 
 **** HOUSE FOOD ****		
 
-* need to encode
-	encode 		worry_housefood_T1, generate (worry_housefood_T1e)
-	encode 		worry_housefood_T2, generate (worry_housefood_T2e)
+* need to destring
+	destring	worry_housefood_T1, generate (worry_housefood_T1e)
+	destring	worry_housefood_T2, generate (worry_housefood_T2e)
 	
 * non-respondents to these questions in all periods	
 	count 		if worry_housefood_T1e != . & worry_housefood_T2e != .
@@ -257,7 +257,7 @@ use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_17July.dta", clear
 * will not create this movement variable at this time
 	
 * save again 
-	save 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_17July_wide.dta", replace
+	save 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_25July_wide.dta", replace
 
 * **********************************************************************
 * 3 - preliminary attrition analysis 
@@ -434,7 +434,7 @@ use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_17July.dta", clear
 	*** no change from above 
 	
 * save again 
-	save 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_18July_wide.dta", replace
+	save 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_25July_wide.dta", replace
 
 * **********************************************************************
 * 3 - end matter

@@ -20,7 +20,7 @@
 
 * open log
 	cap 		log close
-	log 		using 	"C:\Users\aljosephson\Dropbox\COVID\UVM/17July_challenges-log", append
+	log 		using 	"C:\Users\aljosephson\Dropbox\COVID\UVM/challenges-log", append
 
 * **********************************************************************
 * 1 - program uses variables (long)
@@ -37,8 +37,8 @@ use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_9July.dta", clear
 	
 * create variables to compare two time periods 		
 	gen 		challenge_asmuch_comp = . 
-	encode		challenge_asmuch, generate(challenge_asmuche)
-	label 		var challenge_asmuche "encoded version of challenge_asmuch"
+	destring	challenge_asmuch, generate(challenge_asmuche)
+	label 		var challenge_asmuche "destrung version of challenge_asmuch"
 	replace 	challenge_asmuch_comp = challenge_asmuche if period == 1
 	replace 	challenge_asmuch_comp = challenge_asmuche if period == 2
 	tab 		challenge_asmuch_comp
@@ -51,8 +51,8 @@ use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_9July.dta", clear
 
 * create variables to compare two time periods 		
 	gen 		challenge_kinds_comp = . 
-	encode		challenge_kinds, generate(challenge_kindse)
-	label 		var challenge_kindse "encoded version of challenge_kinds"
+	destring	challenge_kinds, generate(challenge_kindse)
+	label 		var challenge_kindse "destrung version of challenge_kinds"
 	replace 	challenge_kinds_comp = challenge_kindse if period == 1
 	replace 	challenge_kinds_comp = challenge_kindse if period == 2
 	tab 		challenge_kinds_comp
@@ -65,8 +65,8 @@ use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_9July.dta", clear
 
 * create variables to compare two time periods 		
 	gen 		challenge_findhelp_comp = . 
-	encode		challenge_findhelp, generate(challenge_findhelpe)
-	label 		var challenge_findhelpe "encoded version of challenge_findhelp"
+	destring	challenge_findhelp, generate(challenge_findhelpe)
+	label 		var challenge_findhelpe "destrung version of challenge_findhelp"
 	replace 	challenge_findhelp_comp = challenge_findhelpe if period == 1
 	replace 	challenge_findhelp_comp = challenge_findhelpe if period == 2
 	tab 		challenge_findhelp_comp
@@ -79,8 +79,8 @@ use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_9July.dta", clear
 
 * create variables to compare two time periods 		
 	gen 		challenge_moreplaces_comp = . 
-	encode		challenge_moreplaces, generate(challenge_moreplacese)
-	label 		var challenge_moreplacese "encoded version of challenge_moreplaces"
+	destring	challenge_moreplaces, generate(challenge_moreplacese)
+	label 		var challenge_moreplacese "destrung version of challenge_moreplaces"
 	replace 	challenge_moreplaces_comp = challenge_moreplacese if period == 1
 	replace 	challenge_moreplaces_comp = challenge_moreplacese if period == 2
 	tab 		challenge_moreplaces_comp
@@ -93,8 +93,8 @@ use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_9July.dta", clear
 
 * create variables to compare two time periods 		
 	gen 		challenge_close_comp = . 
-	encode		challenge_close, generate(challenge_closee)
-	label 		var challenge_closee "encoded version of challenge_close"
+	destring	challenge_close, generate(challenge_closee)
+	label 		var challenge_closee "destrung version of challenge_close"
 	replace 	challenge_close_comp = challenge_closee if period == 1
 	replace 	challenge_close_comp = challenge_closee if period == 2
 	tab 		challenge_close_comp
@@ -107,8 +107,8 @@ use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_9July.dta", clear
 
 * create variables to compare two time periods 		
 	gen 		challenge_reducgroc_comp = . 
-	encode		challenge_reducgroc, generate(challenge_reducgroce)
-	label 		var challenge_closee "encoded version of challenge_reducgroc"
+	destring	challenge_reducgroc, generate(challenge_reducgroce)
+	label 		var challenge_closee "destrung version of challenge_reducgroc"
 	replace 	challenge_reducgroc_comp = challenge_reducgroce if period == 1
 	replace 	challenge_reducgroc_comp = challenge_reducgroce if period == 2
 	tab 		challenge_reducgroc_comp
@@ -118,7 +118,7 @@ use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_9July.dta", clear
 	*** Pr(|T| > |t|) = 0.0012
 	
 * save 	
-	save 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_17July.dta", replace 
+	save 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_25July.dta", replace 
 
 * **********************************************************************
 * 2 - programs variables (wide)
@@ -131,9 +131,9 @@ use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_9July.dta", clear
 
 **** AS MUCH ****		
 
-* need to encode
-	encode 		challenge_asmuch_T1, generate (challenge_asmuch_T1e)
-	encode 		challenge_asmuch_T2, generate (challenge_asmuch_T2e)
+* need to destring
+	destring	challenge_asmuch_T1, generate (challenge_asmuch_T1e)
+	destring	challenge_asmuch_T2, generate (challenge_asmuch_T2e)
 	
 * non-respondents to these questions in all periods	
 	count 		if challenge_asmuch_T1e != . & challenge_asmuch_T2e != .
@@ -154,9 +154,9 @@ use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_9July.dta", clear
 
 **** KINDS ****		
 
-* need to encode
-	encode 		challenge_kinds_T1, generate (challenge_kinds_T1e)
-	encode 		challenge_kinds_T2, generate (challenge_kinds_T2e)
+* need to destring
+	destring	challenge_kinds_T1, generate (challenge_kinds_T1e)
+	destring	challenge_kinds_T2, generate (challenge_kinds_T2e)
 	
 * non-respondents to these questions in all periods	
 	count 		if challenge_kinds_T1e != . & challenge_kinds_T2e != .
@@ -176,9 +176,9 @@ use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_9July.dta", clear
 * will not create this movement variable at this time
 **** FIND HELP ****		
 
-* need to encode
-	encode 		challenge_findhelp_T1, generate (challenge_findhelp_T1e)
-	encode 		challenge_findhelp_T2, generate (challenge_findhelp_T2e)
+* need to destring
+	destring	challenge_findhelp_T1, generate (challenge_findhelp_T1e)
+	destring	challenge_findhelp_T2, generate (challenge_findhelp_T2e)
 	
 * non-respondents to these questions in all periods	
 	count 		if challenge_findhelp_T1e != . & challenge_findhelp_T2e != .
@@ -199,9 +199,9 @@ use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_9July.dta", clear
 
 **** MORE PLACES ****		
 
-* need to encode
-	encode 		challenge_moreplaces_T1, generate (challenge_moreplaces_T1e)
-	encode 		challenge_moreplaces_T2, generate (challenge_moreplaces_T2e)
+* need to destring
+	destring	challenge_moreplaces_T1, generate (challenge_moreplaces_T1e)
+	destring	challenge_moreplaces_T2, generate (challenge_moreplaces_T2e)
 	
 * non-respondents to these questions in all periods	
 	count 		if challenge_moreplaces_T1e != . & challenge_moreplaces_T2e != .
@@ -222,7 +222,7 @@ use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_9July.dta", clear
 
 **** CLOSE ****		
 
-* need to encode
+* need to destring
 	encode 		challenge_close_T1, generate (challenge_close_T1e)
 	encode 		challenge_close_T2, generate (challenge_close_T2e)
 	
@@ -246,8 +246,8 @@ use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_9July.dta", clear
 **** REDUC GROC ****		
 
 * need to encode
-	encode 		challenge_reducgroc_T1, generate (challenge_reducgroc_T1e)
-	encode 		challenge_reducgroc_T2, generate (challenge_reducgroc_T2e)
+	destring	challenge_reducgroc_T1, generate (challenge_reducgroc_T1e)
+	destring	challenge_reducgroc_T2, generate (challenge_reducgroc_T2e)
 	
 * non-respondents to these questions in all periods	
 	count 		if challenge_reducgroc_T1e != . & challenge_reducgroc_T2e != .
@@ -267,7 +267,7 @@ use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_9July.dta", clear
 * will not create this movement variable at this time
 		
 * save again 
-	save 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_17July_wide.dta", replace
+	save 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_25July_wide.dta", replace
 
 * **********************************************************************
 * 3 - preliminary attrition analysis 
@@ -434,7 +434,7 @@ use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_9July.dta", clear
 	*** no change from above
 
 * save again 
-	save 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_17July_wide.dta", replace
+	save 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_25July_wide.dta", replace
 
 * **********************************************************************
 * 3 - end matter
