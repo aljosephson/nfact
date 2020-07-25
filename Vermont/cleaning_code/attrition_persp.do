@@ -20,7 +20,7 @@
 
 * open log
 	cap 		log close
-	log 		using 	"C:\Users\aljosephson\Dropbox\COVID\UVM/19July_perspectives-log", append
+	log 		using 	"C:\Users\aljosephson\Dropbox\COVID\UVM/perspectives-log", append
 
 * **********************************************************************
 * 1 - program uses variables (long)
@@ -30,15 +30,15 @@
 * using long data set 		
 * only have T1 and T2 (not T1 year and T1 covid)
 
-use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_18July.dta", clear 
+use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_25July.dta", clear 
 	*** this is the "long" dataset where T1 and T2 are stacked 
 	
 **** FLU ****	
 	
 * create variables to compare two time periods 		
 	gen 		persp_flu_comp = . 
-	encode		persp_flu, generate(persp_flue)
-	label 		var persp_flue "encoded version of worry_enoughfood"
+	destring	persp_flu, generate(persp_flue)
+	label 		var persp_flue "destrung version of worry_enoughfood"
 	replace 	persp_flu_comp = persp_flue if period == 1
 	replace 	persp_flu_comp = persp_flue if period == 2
 	tab 		persp_flu_comp
@@ -50,8 +50,8 @@ use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_18July.dta", clear
 	
 * create variables to compare two time periods 		
 	gen 		persp_vt_comp = . 
-	encode		persp_VT, generate(persp_vte)
-	label 		var persp_vte "encoded version of worry_enoughfood"
+	destring	persp_VT, generate(persp_vte)
+	label 		var persp_vte "destrung version of worry_enoughfood"
 	replace 	persp_vt_comp = persp_vte if period == 1
 	replace 	persp_vt_comp = persp_vte if period == 2
 	tab 		persp_vt_comp
@@ -63,8 +63,8 @@ use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_18July.dta", clear
 	
 * create variables to compare two time periods 		
 	gen 		persp_usa_comp = . 
-	encode		persp_US, generate(persp_usae)
-	label 		var persp_usae "encoded version of worry_enoughfood"
+	destring	persp_US, generate(persp_usae)
+	label 		var persp_usae "destrung version of worry_enoughfood"
 	replace 	persp_usa_comp = persp_usae if period == 1
 	replace 	persp_usa_comp = persp_usae if period == 2
 	tab 		persp_usa_comp
@@ -76,8 +76,8 @@ use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_18July.dta", clear
 	
 * create variables to compare two time periods 		
 	gen 		persp_me_comp = . 
-	encode		persp_me, generate(persp_mee)
-	label 		var persp_mee "encoded version of worry_enoughfood"
+	destring	persp_me, generate(persp_mee)
+	label 		var persp_mee "destrung version of worry_enoughfood"
 	replace 	persp_me_comp = persp_mee if period == 1
 	replace 	persp_me_comp = persp_mee if period == 2
 	tab 		persp_me_comp
@@ -89,8 +89,8 @@ use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_18July.dta", clear
 	
 * create variables to compare two time periods 		
 	gen 		persp_econ_comp = . 
-	encode		persp_econ, generate(persp_econe)
-	label 		var persp_econe "encoded version of worry_enoughfood"
+	destring	persp_econ, generate(persp_econe)
+	label 		var persp_econe "destrung version of worry_enoughfood"
 	replace 	persp_econ_comp = persp_econe if period == 1
 	replace 	persp_econ_comp = persp_econe if period == 2
 	tab 		persp_econ_comp
@@ -102,8 +102,8 @@ use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_18July.dta", clear
 	
 * create variables to compare two time periods 		
 	gen 		persp_action_comp = . 
-	encode		persp_action, generate(persp_actione)
-	label 		var persp_actione "encoded version of worry_enoughfood"
+	destring	persp_action, generate(persp_actione)
+	label 		var persp_actione "destrung version of worry_enoughfood"
 	replace 	persp_action_comp = persp_actione if period == 1
 	replace 	persp_action_comp = persp_actione if period == 2
 	tab 		persp_action_comp
@@ -115,8 +115,8 @@ use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_18July.dta", clear
 	
 * create variables to compare two time periods 		
 	gen 		persp_prepared_comp = . 
-	encode		persp_prepared, generate(persp_preparede)
-	label 		var persp_actione "encoded version of worry_enoughfood"
+	destring	persp_prepared, generate(persp_preparede)
+	label 		var persp_actione "destrung version of worry_enoughfood"
 	replace 	persp_prepared_comp = persp_preparede if period == 1
 	replace 	persp_prepared_comp = persp_preparede if period == 2
 	tab 		persp_prepared_comp
@@ -128,8 +128,8 @@ use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_18July.dta", clear
 	
 * create variables to compare two time periods 		
 	gen 		persp_packages_comp = . 
-	encode		persp_packages, generate(persp_packagese)
-	label 		var persp_actione "encoded version of worry_enoughfood"
+	destring	persp_packages, generate(persp_packagese)
+	label 		var persp_actione "destrung version of worry_enoughfood"
 	replace 	persp_packages_comp = persp_packagese if period == 1
 	replace 	persp_packages_comp = persp_packagese if period == 2
 	tab 		persp_packages_comp
@@ -138,7 +138,7 @@ use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_18July.dta", clear
 	*** z =  -9.103, Prob > |z| =   0.0000
 
 * save 	
-	save 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_19July.dta", replace 
+	save 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_25July.dta", replace 
 
 * **********************************************************************
 * 2 - programs variables (wide)
@@ -146,14 +146,14 @@ use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_18July.dta", clear
 
 * using wide data set 
 
-	use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_18July_wide.dta", clear
+	use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_25July_wide.dta", clear
 	*** this is the "wide" dataset where T1 and T2 are next to each other - like in Excel data  
 
 **** FLU ****		
 
-* need to encode
-	encode 		persp_flu_T1, generate (persp_flu_T1e)
-	encode 		persp_flu_T2, generate (persp_flu_T2e)
+* need to destring
+	destring	persp_flu_T1, generate (persp_flu_T1e)
+	destring	persp_flu_T2, generate (persp_flu_T2e)
 	
 * non-respondents to these questions in all periods	
 	count 		if persp_flu_T1e != . & persp_flu_T2e != .
@@ -174,9 +174,9 @@ use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_18July.dta", clear
 
 **** VT ****		
 
-* need to encode
-	encode 		persp_VT_T1, generate (persp_vt_T1e)
-	encode 		persp_VT_T2, generate (persp_vt_T2e)
+* need to destring
+	destring	persp_VT_T1, generate (persp_vt_T1e)
+	destring	persp_VT_T2, generate (persp_vt_T2e)
 	
 * non-respondents to these questions in all periods	
 	count 		if persp_vt_T1e != . & persp_vt_T2e != .
@@ -197,9 +197,9 @@ use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_18July.dta", clear
 
 **** USA ****		
 
-* need to encode
-	encode 		persp_US_T1, generate (persp_us_T1e)
-	encode 		persp_US_T2, generate (persp_us_T2e)
+* need to destring
+	destring	persp_US_T1, generate (persp_us_T1e)
+	destring	persp_US_T2, generate (persp_us_T2e)
 	
 * non-respondents to these questions in all periods	
 	count 		if persp_us_T1e != . & persp_us_T2e != .
@@ -220,9 +220,9 @@ use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_18July.dta", clear
 
 **** me ****		
 
-* need to encode
-	encode 		persp_me_T1, generate (persp_me_T1e)
-	encode 		persp_me_T2, generate (persp_me_T2e)
+* need to destring
+	destring	persp_me_T1, generate (persp_me_T1e)
+	destring	persp_me_T2, generate (persp_me_T2e)
 	
 * non-respondents to these questions in all periods	
 	count 		if persp_me_T1e != . & persp_me_T2e != .
@@ -243,9 +243,9 @@ use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_18July.dta", clear
 
 **** econ ****		
 
-* need to encode
-	encode 		persp_econ_T1, generate (persp_econ_T1e)
-	encode 		persp_econ_T2, generate (persp_econ_T2e)
+* need to destring
+	destring	persp_econ_T1, generate (persp_econ_T1e)
+	destring	persp_econ_T2, generate (persp_econ_T2e)
 	
 * non-respondents to these questions in all periods	
 	count 		if persp_econ_T1e != . & persp_econ_T2e != .
@@ -266,9 +266,9 @@ use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_18July.dta", clear
 
 **** action ****		
 
-* need to encode
-	encode 		persp_action_T1, generate (persp_action_T1e)
-	encode 		persp_action_T2, generate (persp_action_T2e)
+* need to destring
+	destring	persp_action_T1, generate (persp_action_T1e)
+	destring	persp_action_T2, generate (persp_action_T2e)
 	
 * non-respondents to these questions in all periods	
 	count 		if persp_action_T1e != . & persp_action_T2e != .
@@ -289,9 +289,9 @@ use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_18July.dta", clear
 
 **** prepared ****		
 
-* need to encode
-	encode 		persp_prepared_T1, generate (persp_prepared_T1e)
-	encode 		persp_prepared_T2, generate (persp_prepared_T2e)
+* need to destring
+	destring	persp_prepared_T1, generate (persp_prepared_T1e)
+	destring	persp_prepared_T2, generate (persp_prepared_T2e)
 	
 * non-respondents to these questions in all periods	
 	count 		if persp_prepared_T1e != . & persp_prepared_T2e != .
@@ -312,9 +312,9 @@ use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_18July.dta", clear
 
 **** packages ****		
 
-* need to encode
-	encode 		persp_packages_T1, generate (persp_packages_T1e)
-	encode 		persp_packages_T2, generate (persp_packages_T2e)
+* need to destring
+	destring	persp_packages_T1, generate (persp_packages_T1e)
+	destring	persp_packages_T2, generate (persp_packages_T2e)
 	
 * non-respondents to these questions in all periods	
 	count 		if persp_packages_T1e != . & persp_packages_T2e != .
@@ -334,7 +334,7 @@ use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_18July.dta", clear
 * will not create this movement variable at this time
 
 * save again 
-	save 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_19July_wide.dta", replace
+	save 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_25July_wide.dta", replace
 
 * **********************************************************************
 * 3 - preliminary attrition analysis 

@@ -21,12 +21,12 @@
 
 * open log
 	cap 		log close
-	log 		using 	"C:\Users\aljosephson\Dropbox\COVID\UVM/18July_weights-perspectives", append
+	log 		using 	"C:\Users\aljosephson\Dropbox\COVID\UVM/weights-perspectives", append
 	
 
 * using wide data set 
 
-	use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_19July_wide.dta", clear 
+	use 		"C:\Users\aljosephson\Dropbox\COVID\UVM\UVM_25July_wide.dta", clear 
 
 * **********************************************************************
 * 1 - create unbalanced weight variable and set weights 
@@ -47,8 +47,27 @@
 	replace 	educationweight = 0.571209801 if education_T1 == 6
 	*** grouped by college degree, no college degree 
 	
+* set gender weights
+* follows:
+	* Women should be 0.5070 of population in VT, represented in sample by 0.794, so weight = 0.638539043
+	* Men should be 0.493 of population in VT, represented in sample by 0.206, so weight = 2.393203883
+
+* create weight variable
+	gen 		genderweight = .
+	replace		genderweight = 0.638539043 if female == 1
+	replace		genderweight = 2.393203883 if female == 0 
+	*** grouped by binary version of gender 
+	
+* set multiple weights
+* create new variables
+* not sure if this is the correct process - but trying it for now
+	gen			educgenweight = . 
+	gen 		educgen = . 
+	replace		educgenweight = educationweight * genderweight
+	replace		educgen = education_T1 * female 
+	
 * set weights 
-	svyset 		education_T1 [pweight=educationweight]
+	svyset 		educgen [pweight=educgenweight]
 	*** to compare variables, use regular command for unweighted, preface with svy for weighted
 	*** not all commands allowed SPECIFICALLY no ttest, etc. 
 	
