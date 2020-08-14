@@ -1,8 +1,8 @@
 * project: food security & covid
 * created on: July 2020
 * created by: fd + lm 
-* edited by: alj 
-* last edited: 4 august 2020 
+* edited by: alj, fa 
+* last edited: 14 august 2020 
 * Stata v.15.1 / 16 
 
 * does
@@ -22,6 +22,7 @@
 	* var Q25 help
 	* missing values as -99 or "."?
 	* gen food security scores and screener comparison
+	* with to dos 
 
 * **********************************************************************
 * 0 - setup
@@ -29,7 +30,9 @@
 
 * set cd 
 	clear					all
-	cd 						"/Users/lauramccann/Box"
+	*cd 						"/Users/lauramccann/Box"
+	
+cd "C:\Users\facciai\Desktop\
 
 * ***********************************************************************
 * 1 - prepare exported data
@@ -37,13 +40,17 @@
 
 * load data
 * load your own data - currently loading dummy sample from arizona 
-	use						"az_dummy_sample_19July.dta", clear
-
+	*use						"az_dummy_sample_19July.dta", clear
+	
+import excel "Arizona data (8_12_20).xlsx", sheet("Sheet0") firstrow
+	
 * drop Qualtrics survey metadata
 	
 	drop					RecipientLastName RecipientFirstName ///
 							RecipientEmail ExternalReference ResponseId
-							
+	
+drop if StartDate=="Start Date" 
+	
 * rename and label intro/screener variables 							
 	rename					Qs3 resp_consent
 	label var				resp_consent "Respondent Consent"
@@ -86,7 +93,7 @@
 
 
 * checkthis combined values 1 and 2 for "No change" category ok?
-* Note: "No Change" incicates use both in the year before and since COVID" 
+* Note: "No Change" indicates use both in the year before and since COVID" 
 
 * rename text response vars to keep them out of encoding loop below
 
@@ -136,6 +143,8 @@
 	
 * creation of dummy var
 	tab 				source_groc, gen(source_groc_dummy_)
+tab1 source_groc*
+						
 	tab 				source_conv, gen(source_conv_dummy_)
 	tab 				source_spec, gen(source_spec_dummy_)
 	tab 				source_grocdel, gen(source_grocdel_dummy_)
@@ -150,6 +159,9 @@
 	tab 				source_grow, gen( source_grow_dummy_)
 	tab 				source_otherbin, gen( source_otherbin_dummy_)
 
+	
+	
+	
 * Item 2A (Qualtrics var names "Q2#covid" & "Q2#year"): How true are these 
 * statements about your household’s food situation in the year before the 
 * COVID-19 outbreak and since the COVID-19 outbreak on March 11th? 
@@ -164,6 +176,9 @@
 	lab var				usda_foodlast_covid  "USDA: Food didn't last (since COVID)"
 	lab var				usda_afford_year "USDA: Can't afford to eat (year)"
 	lab var				usda_afford_covid "USDA: Can't afford to eat (COVID)"
+	
+tab1 usda_foodlast* usda_afford*, miss	
+	
 
 * gen temp variables, fill in and encode, label values
 	foreach v of varlist usda_foodlast* usda_afford*{
@@ -178,29 +193,47 @@
 		label values 	`v' `v'_lab2_1
           }
 
+*drop *_temp		  
+		  
+tab1 usda_foodlast* usda_afford*, miss	/* Difference between 99 and -99 */ 	  
+		  
 * checkthis how does this need to be analyzed because it seems like we're 
 * going to need a "No change" variable, but that will be tricky +add in labels
+
+
 
 		  
 * Item 2B: (Qualtrics var name "Q2b#covid" and "Q2b#year"): How often did you 
 * cut the size of your meals or skip meals?
 
+
+tab usda_oftencut_year, miss
+sum usda_oftencut_year
 	rename				usda_oftencut_year usda_oftencut_year_temp
 	encode 				usda_oftencut_year_temp, gen (usda_oftencut_year)
+tab usda_oftencut_year, miss
+sum usda_oftencut_year	
+	
+	
 	lab def				oftencutyr 1 "Only 1 or 2 months" ///
 							2 "Some months but not every month" ///
 							3 "Almost every month" 99  "I don't know"
-	lab values			usda_oftencut_year oftencut_yr
+	lab values			usda_oftencut_year oftencutyr
 	lab var				usda_oftencut_year "USDA: Often Cut Meals (Yr)"
 	drop				usda_oftencut_year_temp
 		
 	rename				usda_oftencut_covid usda_oftencut_covid_temp
 	encode 				usda_oftencut_covid_temp, gen (usda_oftencut_covid)
 	lab def				oftencutcv 1 "Once" 2 "Twice" 3 "Weekly" 4 "Daily"
-	lab values			usda_oftencut_covid oftencut_cv
+	lab values			usda_oftencut_covid oftencutcv
 	lab var				usda_oftencut_covid "USDA: Often Cut Meals (Since Covid)"
 	drop				usda_oftencut_covid_temp
 
+	
+tab1 usda_oftencut_year	usda_oftencut_covid, miss /* Many missing -- check prior responses (those who said 'never' to food insecurity) */ 
+												  /* There is a 4 in the usda_oftencut_year variable - needs to be labeled */ 
+
+	
 * Item 3 (Qualtrics var name "Q3"): Which of the following food assistance 
 * programs did your household use in the past, if any, and since the COVID-19 
 * outbreak (March 11)? 
@@ -239,6 +272,8 @@
 * drop temp vars
 	drop 				*_temp	   
 
+tab1 prog_*, miss	
+	
 * creation of dummy var
 	tab 				prog_snap, gen(prog_snap_dummy_)
 	tab 				prog_wic, gen( prog_wic_dummy_)
@@ -246,6 +281,11 @@
 	tab 				prog_pantry, gen ( prog_pantry_dummy_)
 	tab 				prog_other, gen(prog_other_dummy_)
 
+* Same comments as above (No change label / 2 variables (prior/since)) 	
+	
+	
+	
+	
 * Item 3A (Qualtrics var name "Q3a"): Please indicate your level of agreement 
 * regarding using SNAP (or Food Stamps) food benefits since the COVID-19 
 * outbreak.
@@ -283,8 +323,13 @@
 	   }	
 
 * drop temp vars
-	drop 				*_temp	   
+	drop 				*_temp	
 
+tab1 snap_*, miss /* Here we should distinguish between people who were not supposed to answer 
+					(non-participants) and people who were supposed to answer but didn't. */  
+
+	
+	
 	
 * Item 3B (Qualtrics var name "Q3b") : Please indicate your level of agreement 
 * regarding using WIC benefits since the COVID-19 outbreak.
@@ -322,6 +367,10 @@
 * drop temp vars
 	drop 				*_temp	   
 
+tab1 wic_*, miss /* Here we should distinguish between people who were not supposed to answer 
+					(non-participants) and people who were supposed to answer but didn't. */  
+					
+					
 
 
 * Item 3C (Qualtrics var name "Q3c"): Please indicate your level of agreement 
@@ -363,9 +412,12 @@ foreach v of varlist school_* {
 	   }	
 
 * drop temp vars
-	drop 				*_temp	   
-	
-	
+	drop 				*_temp	     
+
+tab1 school_*, miss /* Here we should distinguish between people who were not supposed to answer 
+					(non-participants) and people who were supposed to answer but didn't. */  
+					
+						
 	
 
 * Item 3D (Qualtrics var name "Q3d") : Please indicate your level of agreement 
@@ -407,7 +459,12 @@ foreach v of varlist pantry_* {
 	   }	
 
 * drop temp vars
-	drop 				*_temp	   
+	drop 				*_temp	
+
+tab1 pantry_*, miss /* Here we should distinguish between people who were not supposed to answer 
+					(non-participants) and people who were supposed to answer but didn't. */  
+					
+			   
 	
 	
 * Item 3E (Qualtrics var name "Q3e") : Please indicate your level of agreement
@@ -426,7 +483,7 @@ foreach v of varlist pantry_* {
 	
 foreach v of varlist foodprog_* {    
 	   rename `v' `v'_temp
-	   encode `v'_temp, gen (`v') 
+	   encode `v'_temp, gen (`v') 						/* Is this necessary? (Just to follow the logic) */ 
 	   replace			`v' = .
 	   replace 			`v' = 1 if `v'_temp == "1" 
 	   replace 			`v' = 2 if `v'_temp == "2"
@@ -439,7 +496,13 @@ foreach v of varlist foodprog_* {
 	   }	
 
 * drop temp vars
-	drop 				*_temp	   
+	drop 				*_temp	
+
+tab1 foodprog_*, miss /* Here we should distinguish between people who were not supposed to answer 
+					(non-participants) and people who were supposed to answer but didn't. */  
+					
+* Why do we have such a low number of missing now?? 
+* Should we recode as missing respondents who DID NOT use any of these programs? 			      
 		
 	
 	
@@ -472,7 +535,7 @@ foreach v of varlist trans_* {
 	   rename `v' `v'_temp
 	   encode `v'_temp, gen (`v') 
 	   replace			`v' = .
-	   replace 			`v'= 1 if `v'_temp == "1,2" 
+	   replace 			`v'= 1  if `v'_temp == "1,2" 
 	   replace 			`v' = 2 if `v'_temp == "1"
 	   replace 			`v' = 3 if `v'_temp == "2"
 	   replace 			`v' = 4 if `v'_temp == "3"
@@ -482,7 +545,10 @@ foreach v of varlist trans_* {
 	   }	
 
 * drop temp vars
-	drop 				*_temp	   
+	drop 				*_temp	 
+
+tab1 trans_*, miss 
+	
 
 * creation of dummy var
 	tab 				trans_bus, gen(trans_bus_dummy_)
@@ -501,10 +567,12 @@ foreach v of varlist trans_* {
 
 * rename text response vars to keep them out of encoding loop below
 * checkthis
+
+/* NOT FOUND
 	rename				Q5a text_challenge_foodwant
 	rename				Q5b text_challenge_foodget
 	rename				Q5c text_challenge_standclose
-
+*/
 	
 * label prog vars
 
@@ -521,9 +589,9 @@ foreach v of varlist trans_* {
 	lab var 			challenge_reducgroc "Challenge:  Reduce Groceries"
 *	lab var			    challenge_morecook "Challenge: More Time Cooking"
 *	lab var			    challenge_volunteer "Challenge: Volunteer"
-	lab var				text_challenge_foodwant "Text: Challenge to get food wanted, couldn't get"
-	lab var				text_challenge_foodget "Text: Challenge to get food got, unwanted"
-	lab var				text_challenge_standclose "Text: List where you had to stand close to get food"
+***	lab var				text_challenge_foodwant "Text: Challenge to get food wanted, couldn't get"
+*** lab var				text_challenge_foodget "Text: Challenge to get food got, unwanted"
+*** lab var				text_challenge_standclose "Text: List where you had to stand close to get food"
 	
 	
 * loop to recode, appends "temp" to source vars and renames encoded vars
@@ -532,7 +600,7 @@ foreach v of varlist challenge_* {
 	   rename `v' `v'_temp
 	   encode `v'_temp, gen (`v') 
 	   replace			`v' = .
-	   replace 			`v'= 1 if `v'_temp == "1" 
+	   replace 			`v'= 1  if `v'_temp == "1" 
 	   replace 			`v' = 2 if `v'_temp == "2"
 	   replace 			`v' = 3 if `v'_temp == "3"
 	   replace 			`v' = 4 if `v'_temp == "4"
@@ -542,7 +610,9 @@ foreach v of varlist challenge_* {
 	   }	
 
 * drop temp vars
-	drop 				*_temp	   
+	drop 				*_temp	
+
+tab1 challenge_*, miss    
 
 
 * Item 6 (Qualtrics var name "Q6"): Have you or anyone in your household 
@@ -564,7 +634,7 @@ foreach v of varlist job_* {
 	   rename `v' `v'_temp
 	   encode `v'_temp, gen (`v') 
 	   replace			`v' = .
-	   replace 			`v'= 1 if `v'_temp == "1,2" 
+	   replace 			`v'= 1  if `v'_temp == "1,2" 
 	   replace 			`v' = 2 if `v'_temp == "1"
 	   replace 			`v' = 3 if `v'_temp == "2"
 	   replace 			`v' = 4 if `v'_temp == "3"
@@ -575,7 +645,10 @@ foreach v of varlist job_* {
 	   }	
 
 * drop temp vars
-	drop 				*_temp	 
+	drop 				*_temp
+
+tab1 job_*, miss       	/* Let's have 4 binary (yes/no) variables */  
+
 
 
 
@@ -615,6 +688,10 @@ foreach v of varlist money {
 
 * rename
 	drop 				money_temp
+
+tab1 money*, miss 		/* Let's have 4 binary (yes/no) variables */  
+						
+						/* Here 'No changes' means No (didn't receive money), right? */
 
 
 
@@ -660,6 +737,9 @@ foreach v of varlist helpful* {
 * drop temp vars
 	drop 				*_temp	
 
+tab1 helpful*, miss /* Was there a skip pattern here? (There are a lot of missing values) */
+
+
 
 
 
@@ -701,7 +781,11 @@ foreach v of varlist worry_* {
 	   }	
 
 * drop temp vars
-	drop 				*_temp	   
+	drop 				*_temp	
+
+tab1 worry_*, miss /* Was there a skip pattern here? (There are a lot of missing values) */
+
+   
 
 
 
@@ -734,6 +818,9 @@ foreach v of varlist *_cur {
 
 * drop temp vars
 	drop 				*_temp	
+
+tab1 *_cur, miss 
+
 
 
 
@@ -776,6 +863,9 @@ foreach v of varlist *_fut {
 * drop temp vars
 	drop 				*_temp	   
 
+tab1 *_fut, miss /* What are we doing with the missing values (up to 42%)?  */
+
+
 
 * ***********************************************************************
 * 5 - Part 3/5: Eating and Purchasing Behaviors
@@ -789,6 +879,8 @@ foreach v of varlist *_fut {
 	
 	rename 					Q11 diet_change
 	rename 					Q11_7_TEXT diet_change_other
+	
+tab1 diet_change, miss	
 	
 	gen 					diet_change_recode=.
 	replace 				diet_change_recode=1 if diet_change=="1"
@@ -891,7 +983,70 @@ foreach v of varlist *_fut {
 	replace 				diet_change_recode=98 if diet_change=="5,7"
 	replace 				diet_change_recode=99 if diet_change=="6,7"
 	
-	label 					define dietchange 1 "Food allergy that requires avoiding some foods" 2 "Food sensitivity that causes problems from eating some foods" 3 "Need to avoid some foods for health condition like diabetes or kidney disease" 4 "Religious restriction" 5 "Vegetarian/Vegan" 6 "Weight loss diet that requires special foods" 7 "Other" 8 "No one in my household has a special diet" 9 "Food Allergy and Food Sensitivity" 10 "Food allergy, Food sensitivity and Avoid some foods for health" 11 "Food allergy, Food sensitivity and Religious restriction" 12 "Food allergy, Food sensitivity and Vegetarian/Vegan" 13 "Food allergy, Food sensitivity and Weight loss" 14 "Food allergy, Food sensitivity and Other" 15 "Food allergy, Food sensitivity, Avoid some foods for health and Religious restriction" 16 "Food allergy, Food sensitivity, Avoid some foods for health and Vegetarian/Vegan" 17 "Food allergy, Food sensitivity, Avoid some foods for health and Weight loss" 18 "Food allergy, Food sensitivity, Avoid some foods for health and Other" 19 "Food allergy, Food sensitivity, Avoid some foods for health, Religious restriction and Vegetarian/Vegan" 20 "Food allergy, Food sensitivity, Avoid some foods for health, Religious restriction and Weight loss" 21 "Food allergy, Food sensitivity, Avoid some foods for health, Religious restriction and Other" 22 "Food allergy, Food sensitivity, Avoid some foods for health, Religious restriction, Vegetarian/Vegan and Weight loss" 23 "Food allergy, Food sensitivity, Avoid some foods for health, Religious restriction, Vegetarian/Vegan and Other" 24 "Food allergy, Food sensitivity, Avoid some foods for health, Religious restriction, Vegetarian/Vegan, Weight loss and Other" 25 "Food allergy and Avoid some foods for health" 26 "Food allergy, Avoid some foods for health and Religious restriction" 27 "Food allergy, Avoid some foods for health and Vegetarian/Vegan" 28 "Food allergy, Avoid some foods for health and Weight loss" 29 "Food allergy, Avoid some foods for health and Other" 30 "Food sensitivity, Avoid some foods for health, Religios restriction and Vegetarian/Vegan" 31 "Food sensitivity, Avoid some foods for health, Religious restriction and Weight loss" 32 "Food sensitivity, Avoid some foods for health, Religious restriction and Other" 33 "Food sensitivity, Avoid some foods for health, Religious restriction, Vegetarian/Vegan and Weight loss" 34 "Food sensitivity, Avoid some foods for health, Religious restriction, Vegetarian/Vegan and Other" 35 "Food sensitivity, Avoid some foods for health, Religious restriction, Vegetarian/Vegan, Weight loss and Other" 36 "Food allergy and Religious restriction" 37 "Food Allergy, Religious restriction and Vegetarian/Vegan" 38 "Food Allergy, Religious restriction and Weight loss" 39 "Food Allergy, Religious restriction and Other" 40 "Food allergy, Religious Restriction, Vegetarian/Vegan and Weight loss" 41 "Food allergy, Religious Restriction, Vegetarian/Vegan and Other" 42 "Food allergy, Religious restriction, Vegetarian/Vegan, Weight loss and Other" 43 "Food allergy and Vegetarian/Vegan" 44 "Food allergy, Vegetarian/Vegan and Weight loss" 45 "Food allergy, Vegetarian/Vegan and Other" 46 "Food allergy, Vegetarian/Vegan, Weight loss and Other" 47 "Food allergy and Weight loss" 48 "Food allergy, Weight loss and Other" 49 "Food allergy and Other" 50 "Food sensitivity and Avoid some foods for health" 51 "Food sensitivity, Avoid some foods for health and Religious restriction" 52 "Food sensitivity, Avoid some foods for health and Vegetarian/Vegan" 53 "Food sensitivity, Avoid some foods for health and Weight loss" 54 "Food sensitivity, Avoid some foods for health and Other" 55 "Food sensitivity, Avoid some foods for health, Religious restriction and Vegetarian/Vegan" 56 "Food sensitivity, Avoid some foods for health, Religious restriction and Weight loss" 57 "Food sensitivity, Avoid some foods for health, Religious restriction and other" 58 "Food sensitivity, Avoid some foods for health, Religious restriction, Vegetarian/Vegan, and Weight loss" 59 "Food sensitivity, Avoid some foods for health, Religious restriction, Vegetarian/Vegan, and Other" 60 "Food sensitivity, Avoid some foods for health, Religious restriction, Vegetarian/Vegan, Weight loss and other" 61 "Food sensitivity and Religious restriction" 62 "Food sensitivity, Religious restriction and Vegetarian/Vegan" 63 "Food sensitivity, Religious restriction and Weight loss" 64 "Food sensitivity, Religious restriction and Other" 65 "Food sensitivity, Religious restriction, Vegetarian/Vegan and Weight loss" 66 "Food sensitivity, Religious restriction, Vegetarian/Vegan and Other" 67 "Food sensitivity, Religious restriction, Vegetarian/Vegan Weight loss and Other" 68 "Food sensitivity and Vegetarian/Vegan" 69 "Food sensitivity, Vegetarian/Vegan and Weight loss" 70 "Food sensitivity, Vegetarian/Vegan and Other" 71 "Food sensitivity, Vegetarian/Vegan, Weight loss, and Other" 72 "Food sensitivity and Weight loss" 73 "Food sensitivity, Weight loss and Other" 74 "Food sensitivity and Other" 75 "Avoid some foods for health and Religious Restriction" 76 "Avoid some foods for health, Religious restriction and Vegetarian/Vegan" 77 "Avoid some foods for health, Religious restriction and Weight loss" 78 "Avoid some foods for health, Religious restriction and Other" 79 "Avoid some foods for health, Religious restriction, Vegetarian/Vegan and Weight loss" 80 "Avoid some foods for health, Religious restriction, Vegetarian/Vegan and Other" 81 "Avoid some foods for health, Religious restriction, Vegetarian/Vegan, Weight loss and Other" 82 "Avoid some foods for health and Vegetarian/Vegan" 83 "Avoid some foods for health, Vegetarian/Vegan and Weight loss" 84 "Avoid some foods for health, Vegetarian/Vegan and Other" 85 "Avoid some foods for health, Vegetarian/Vegan, Weight loss and Other" 86 "Avoid some foods for health and Weight loss" 87 "Avoid some foods for health, Weight loss, and Other" 88 "Avoid some foods for health and Other" 89 "Religious restriction and Vegetarian/Vegan" 90 "Religious restriction, Vegetarian/Vegan and Weight loss" 91 "Religious restriction, Vegetarian/Vegan and Other" 92 "Religious restriction, Vegetarian/Vegan, Weight loss and Other" 93 "Religious restriction and Weight loss" 94 "Religious restriction, Weight loss and Other" 95 "Religious restriction and Other" 96 "Vegetarian/Vegan and Weight loss" 97 "Vegetarian/Vegan, Weight loss and Other" 98 "Vegetarian/Vegan and Other" 99 "Weight loss and Other", replace
+	label 					define dietchange 1 "Food allergy that requires avoiding some foods" ///
+							2 "Food sensitivity that causes problems from eating some foods" ///
+							3 "Need to avoid some foods for health condition like diabetes or kidney disease" ///
+							4 "Religious restriction" 5 "Vegetarian/Vegan" 6 "Weight loss diet that requires special foods" ///
+							7 "Other" 8 "No one in my household has a special diet" 9 "Food Allergy and Food Sensitivity" ///
+							10 "Food allergy, Food sensitivity and Avoid some foods for health" ///
+							11 "Food allergy, Food sensitivity and Religious restriction" ///
+							12 "Food allergy, Food sensitivity and Vegetarian/Vegan" ///
+							13 "Food allergy, Food sensitivity and Weight loss" 14 "Food allergy, Food sensitivity and Other" ///
+							15 "Food allergy, Food sensitivity, Avoid some foods for health and Religious restriction" ///
+							16 "Food allergy, Food sensitivity, Avoid some foods for health and Vegetarian/Vegan" ///
+							17 "Food allergy, Food sensitivity, Avoid some foods for health and Weight loss" ///
+							18 "Food allergy, Food sensitivity, Avoid some foods for health and Other" ///
+							19 "Food allergy, Food sensitivity, Avoid some foods for health, Religious restriction and Vegetarian/Vegan" ///
+							20 "Food allergy, Food sensitivity, Avoid some foods for health, Religious restriction and Weight loss" ///
+							21 "Food allergy, Food sensitivity, Avoid some foods for health, Religious restriction and Other" ///
+							22 "Food allergy, Food sensitivity, Avoid some foods for health, Religious restriction, Vegetarian/Vegan and Weight loss" ///
+							23 "Food allergy, Food sensitivity, Avoid some foods for health, Religious restriction, Vegetarian/Vegan and Other" ///
+							24 "Food allergy, Food sensitivity, Avoid some foods for health, Religious restriction, Vegetarian/Vegan, Weight loss and Other" ///
+							25 "Food allergy and Avoid some foods for health" 26 "Food allergy, Avoid some foods for health and Religious restriction" ///
+							27 "Food allergy, Avoid some foods for health and Vegetarian/Vegan" 28 "Food allergy, Avoid some foods for health and Weight loss" ///
+							29 "Food allergy, Avoid some foods for health and Other" 30 "Food sensitivity, Avoid some foods for health, Religios restriction and Vegetarian/Vegan" ///
+							31 "Food sensitivity, Avoid some foods for health, Religious restriction and Weight loss" ///
+							32 "Food sensitivity, Avoid some foods for health, Religious restriction and Other" ///
+							33 "Food sensitivity, Avoid some foods for health, Religious restriction, Vegetarian/Vegan and Weight loss" ///
+							34 "Food sensitivity, Avoid some foods for health, Religious restriction, Vegetarian/Vegan and Other" ///
+							35 "Food sensitivity, Avoid some foods for health, Religious restriction, Vegetarian/Vegan, Weight loss and Other" ///
+							36 "Food allergy and Religious restriction" 37 "Food Allergy, Religious restriction and Vegetarian/Vegan" ///
+							38 "Food Allergy, Religious restriction and Weight loss" 39 "Food Allergy, Religious restriction and Other" ///
+							40 "Food allergy, Religious Restriction, Vegetarian/Vegan and Weight loss" ///
+							41 "Food allergy, Religious Restriction, Vegetarian/Vegan and Other" ///
+							42 "Food allergy, Religious restriction, Vegetarian/Vegan, Weight loss and Other" ///
+							43 "Food allergy and Vegetarian/Vegan" 44 "Food allergy, Vegetarian/Vegan and Weight loss" ///
+							45 "Food allergy, Vegetarian/Vegan and Other" 46 "Food allergy, Vegetarian/Vegan, Weight loss and Other" ///
+							47 "Food allergy and Weight loss" 48 "Food allergy, Weight loss and Other" 49 "Food allergy and Other" ///
+							50 "Food sensitivity and Avoid some foods for health" 51 "Food sensitivity, Avoid some foods for health and Religious restriction" ///
+							52 "Food sensitivity, Avoid some foods for health and Vegetarian/Vegan" 53 "Food sensitivity, Avoid some foods for health and Weight loss" ///
+							54 "Food sensitivity, Avoid some foods for health and Other" 55 "Food sensitivity, Avoid some foods for health, Religious restriction and Vegetarian/Vegan" ///
+							56 "Food sensitivity, Avoid some foods for health, Religious restriction and Weight loss" ///
+							57 "Food sensitivity, Avoid some foods for health, Religious restriction and other" ///
+							58 "Food sensitivity, Avoid some foods for health, Religious restriction, Vegetarian/Vegan, and Weight loss" ///
+							59 "Food sensitivity, Avoid some foods for health, Religious restriction, Vegetarian/Vegan, and Other" ///
+							60 "Food sensitivity, Avoid some foods for health, Religious restriction, Vegetarian/Vegan, Weight loss and other" ///
+							61 "Food sensitivity and Religious restriction" 62 "Food sensitivity, Religious restriction and Vegetarian/Vegan" ///
+							63 "Food sensitivity, Religious restriction and Weight loss" 64 "Food sensitivity, Religious restriction and Other" ///
+							65 "Food sensitivity, Religious restriction, Vegetarian/Vegan and Weight loss" ///
+							66 "Food sensitivity, Religious restriction, Vegetarian/Vegan and Other" ///
+							67 "Food sensitivity, Religious restriction, Vegetarian/Vegan Weight loss and Other" ///
+							68 "Food sensitivity and Vegetarian/Vegan" 69 "Food sensitivity, Vegetarian/Vegan and Weight loss" ///
+							70 "Food sensitivity, Vegetarian/Vegan and Other" 71 "Food sensitivity, Vegetarian/Vegan, Weight loss, and Other" ///
+							72 "Food sensitivity and Weight loss" 73 "Food sensitivity, Weight loss and Other" 74 "Food sensitivity and Other" ///
+							75 "Avoid some foods for health and Religious Restriction" 76 "Avoid some foods for health, Religious restriction and Vegetarian/Vegan" ///
+							77 "Avoid some foods for health, Religious restriction and Weight loss" 78 "Avoid some foods for health, Religious restriction and Other" ///
+							79 "Avoid some foods for health, Religious restriction, Vegetarian/Vegan and Weight loss" ///
+							80 "Avoid some foods for health, Religious restriction, Vegetarian/Vegan and Other" ///
+							81 "Avoid some foods for health, Religious restriction, Vegetarian/Vegan, Weight loss and Other" ///
+							82 "Avoid some foods for health and Vegetarian/Vegan" 83 "Avoid some foods for health, Vegetarian/Vegan and Weight loss" ///
+							84 "Avoid some foods for health, Vegetarian/Vegan and Other" 85 "Avoid some foods for health, Vegetarian/Vegan, Weight loss and Other" ///
+							86 "Avoid some foods for health and Weight loss" 87 "Avoid some foods for health, Weight loss, and Other" ///
+							88 "Avoid some foods for health and Other" 89 "Religious restriction and Vegetarian/Vegan" ///
+							90 "Religious restriction, Vegetarian/Vegan and Weight loss" 91 "Religious restriction, Vegetarian/Vegan and Other" ///
+							92 "Religious restriction, Vegetarian/Vegan, Weight loss and Other" 93 "Religious restriction and Weight loss" ///
+							94 "Religious restriction, Weight loss and Other" 95 "Religious restriction and Other" 96 "Vegetarian/Vegan and Weight loss" ///
+							97 "Vegetarian/Vegan, Weight loss and Other" 98 "Vegetarian/Vegan and Other" 99 "Weight loss and Other", replace
 	
 	label values 				diet_change_recode dietchange
 	label var					diet_change_recode "Diet Changes"
@@ -903,12 +1058,19 @@ foreach v of varlist *_fut {
 	
 	* drop diet_change var
 	drop						diet_change
+
+
+tab1 diet_change*, miss /* Maybe a set yes/no variables instead?  */
+	
+	
+	
+	
 	
 * Item 11a (qualtrics var name Q11a) - Have you had challenges finding food that
 * meets these food needs since the COVID-19 outbreak (March 11th)?
 
-	label define 			No_Yes_NA 0 "No" 1 "Yes" 88 "Not applicable"
-	label values 			diet_change_allergy diet_change_sensitive diet_change_health diet_change_religion diet_veg diet_weight diet_other No_Yes_NA
+*	label define 			No_Yes_NA 0 "No" 1 "Yes" 88 "Not applicable"
+*	label values 			diet_change_allergy diet_change_sensitive diet_change_health diet_change_religion diet_veg diet_weight diet_other No_Yes_NA
 	
 * Item 12 (codebook question 12) - The next questions are about how you have
 * been eating in the past month during the COVID-19 outbreak (since March 11th).
@@ -949,6 +1111,9 @@ foreach v of varlist *_fut {
 	*label define behaviors 1 "Never true" 2 "Sometimes true" 3 "Often true" 99 "I dont know"
 	*label values behaviors_local_year behaviors_pack_year behaviors_bags_year behaviors_veg_year behaviors_sust_year behaviors_local_covid behaviors_pack_covid behaviors_bags_covid behaviors_veg_covid behaviors_sust_covid behaviors
 	
+	
+	
+	
 * Item 15 (Qualtrics var name Q15) - Please indicate whether any of the 
 * following is true about your eating and shopping behaviors in the year before
 * the COVID-19 outbreak and since the COVID-19 outbreak (March 11th):
@@ -982,7 +1147,11 @@ foreach v of varlist habits_* {
 	   }	
 
 * drop temp vars
-	drop 				*_temp	   
+	drop 				*_temp	  
+	
+tab1 habits_*, miss	    /* Maybe 2 separate binary yes/no variables? (One for my household, one for the average U.S. household) */
+	
+	
 	
 	
 * ***********************************************************************
@@ -1027,6 +1196,14 @@ foreach v of varlist habits_* {
 	label define 		persp 1 "1 (strongly disagree)" 2 "2" 3 "3" 4 "4" 5 "5" 6 "6 (strongly agree)" 99 "I don't know"
 	
 	label values 		persp_flu persp_VT persp_US persp_me persp_econ persp_action persp_foodsource persp_prepared persp_packages persp_open_econ persp_foodsupply persp_strike persp
+
+	
+tab1 persp_*, miss		/* 99 and -99 should be recoded as missing */ 
+	
+	
+
+	
+	
 	
 * Item 17 (Qualtrics var name Q17) - Do you anyone with symptoms of, or diagnosed with, the coronavirus (COVID-19)? If so, who? Check all that apply.
 
@@ -1062,6 +1239,11 @@ foreach v of varlist habits_* {
 	
 	* checkthis: propably an easier/more concise way of coding this question
 
+tab1 know*, miss	/* Maybe a set of binary (yes/no) variables? */ 	
+	
+	
+	
+	
 	
 * Item 18 (Qualtrics var name Q18) - Have you had to quarantine in your home due 
 *to coronavirus (for example because of illness or exposure symptoms)?
@@ -1070,8 +1252,15 @@ foreach v of varlist habits_* {
 	
 	label define 			no_yes 0 "No" 1 "Yes"
 	rename 					Q18 know_quaran
+	
+destring know_quaran, replace  /* Added this */ 
+	
 	label values 			know_quaran no_yes
 	label var				know_quaran "Know Quarantine"
+	
+tab know_quaran, miss	/* -99 should be . */ 
+	
+	
 	
 * ***********************************************************************
 * 7 - Part 5/5: Demographics
@@ -1091,12 +1280,21 @@ foreach v of varlist habits_* {
 	label var 				num_people_1865 "Number of People in Household  Ages 18-65"
 	label var 				num_people_65up "Number of People in Household Ages 65 and up"
 	
+	
 	* checkthis: should I replace -99 with with something or leave as is
+	
+tab1 num_people*, miss	/* Major problem: can we assume that the '-99' are '0'? */ 
+						
+
+						
 	
 * Item 20 (Qualtrics var name Q20) - Which of the following best describes your 
 * current occupation
 
 	*labels for Q20 
+	
+	
+destring Q20, replace  /* Added this */ 	
 	
 	rename 					Q20 occupation
 	label define 			Occupation 1 "Not currently employed" 2 "Agriculture, Forestry, Fishing and Hunting" 3 "Arts, Entertainment, and Recreation" 4 "Broadcasting and MEdia" 5 "Childcare Provider" 6 "Clerical/Administrative" 7 "College, University, and Adult Education" 8 "Computer and Electronics Manufacturing" 9 "Construction" 10 "Disabled and on Disability Benefits" 11 "FInance and Insurance" 12 "Food and Beverage Services" 13 "Government and Public Administration" 14 "Health Care and Social Assistance" 15 "Homemaker" 16 "Hotel and Hospitality Services" 17 "Information Services and Data Processing" 18 "Legal Services" 19 "Military" 20 "Mining" 21 "Other Information Industry" 22 "Other Manufactoring" 23 "Primary/Secondary (K-12) Education" 24 "Publishing" 25 "Real Estate, Rental, and Leasing" 26 "Religious" 27 "Retail" 28 "Retired" 29 "Scientific or Technical Services" 30 "Self-employed" 31 "Software" 32 "Student" 33 "Telecommunications" 34 "Transportation and Warehousing" 35 "Utilities" 36 "Other (please describe below if selected) "
@@ -1105,6 +1303,10 @@ foreach v of varlist habits_* {
 	label var 				occupation "Occupation"
 	label var 				Q20txt "Occupation Text"
 	
+tab1 occupation* Q20txt, miss	/* -99 should be . */ 
+	
+	
+	
 * Item 21 (Qualtrics var name Q21b) - What is your ZIP Code?
 
 	* Labels for Q21b
@@ -1112,6 +1314,11 @@ foreach v of varlist habits_* {
 	rename 					Q21b zipcode
 	destring 				zipcode, replace
 	label var 				zipcode "ZIP code"
+	
+tab1 zipcode, miss	/* -99 should be . */ 
+	
+	
+	
 
 * Item 22 (Qualtrics var name Q22) - In what year were you born?
 
@@ -1121,16 +1328,27 @@ foreach v of varlist habits_* {
 	destring 				year_born, replace
 	label var 				year_born "Year Born"
 	
+tab1 year_born, miss	/* -99 should be . */ 	
+	
+	
+	
 * Item 23 (Qualtrics var name Q24) - Are you of Hispanic, Latino, or Spanish Origin?
 
 	* labels for Q24
 	
 	rename 					Q24 ethnicity
+	destring 				ethnicity, replace
 	label define 			hispanic_type 0 "Not hispanic" 1 "Yes, Mexican/Mexican American/Chicano" 2 "Yes, Puerto Rican" 3 "Yes, Cuban" 4 "Yes, Other"
 	label values 			ethnicity hispanic_type
 	label var 				ethnicity "Ethnicity"
 	label var 				Q24_4_TEXT "Ethnicity Text"
+	
+tab1 ethnicity Q24_4_TEXT, miss	/* -99 should be . */ 	
+								/* Maybe also create a hispanic yes/no variable? */ 
 
+	
+	
+	
 * Item 24 (Qualtrics var name Q25) - What is your race? Check all that apply:
 
 	*** checkthis: includes up to two combinations for race. also not sure if this is the best way to code this var.
@@ -1232,35 +1450,61 @@ foreach v of varlist habits_* {
 	* drop race var 
 	drop					race
 	
+tab1 race*, miss	/* We might want to create a new variable based on 'race_recode' */
+					/* White, Black, Asian, Native American, Other, 2 or more */
+	
+
+	
+	
 * Item 25 (Qualtrics var name Q27) - Which of the following best describes your
 * household income range in 2019 before taxes?
 
 	* labels for Q27
 	
+destring Q27, replace /* Added this */ 	
+	
 	rename 					Q27 income
 	label define 			Income 1 "Less than $10,000" 2 "$10,000 to $14,999" 3 "$15,000 to $24,999" 4 "$25,000 to $34,999" 5 "$35,000 to $49,999" 6 "$50,000 to $74,999" 7 "$75,000 to $99,999" 8 "$100,000 to $149,000" 9 "$150,000 to $199,999" 10 "$200,000 or more"
 	label values 			income Income
 	label var 				income "Income Range"	
+	
+	
+tab	income, miss   /*-99 should be . */ 
+	
+	
 
+	
 * Item 26 (Qualtrics var name Q28) - How long have you lived in the United States?
 
 	* labels for Q28
+
+destring Q28, replace /* Added this */ 	
 	
 	rename 					Q28 years_usa
 	label define 			years_in_usa 1 "I was born in the US" 2 "Less than 5 years" 3 "5 - 10 years" 4 "10 or more years"
 	label values 			years_usa years_in_usa
 	label var 				years_usa "Years Living in USA"
+
+tab	years_usa, miss   /*-99 should be . */ 	
+	
 	
 * Item 27 (Qualtrics var name Q29) - Whichc of the following political 
 * affiliations do you most identify with? 
 
 	* labels for Q29
 
+destring Q29, replace /* Added this */ 
+
 	rename 					Q29 political
 	label define 			Political 1 "Democrat" 2 "Green Party" 3 "Independent" 4 "Libertarian" 5 "No affiliation" 6 "Progressive" 7 "Republican" 8 "Other"
 	label values 			political Political
 	label var 				political "Political Affiliation"
 	label var 				Q29_8_TEXT "Political Affiliation Text"
+	
+tab	political, miss   /*-99 should be . */ 	
+		
+	
+	
 	
 * Item 28 (Qualtrics var name Q30) - Do you have any additional comments or
 * experiences related to the issue of food during the COVID-19 outbreak that you
@@ -1270,6 +1514,9 @@ foreach v of varlist habits_* {
 	
 	rename 					Q30 other_comments
 	label var 				other_comments "Any Other Comments"
+	
+tab other_comments, miss    /*-99 should be . */ 		
+	
 	
 * ***********************************************************************
 * 7 - Comparisons of screener questions with demographic questions
@@ -1281,13 +1528,21 @@ foreach v of varlist habits_* {
 * Compare responses the do not match for screeer vars (incom_scr) vs. 
 * demographic var (income_deom) to identify potential flags* 
 * Make note of participant ID* 
-	sort 			income_scr 
+
+											/* The income variable in the screener is called 'scrn_income' */ 
+											/* This code doesn't run */ 
+
+	sort 			income_scr				
 	browse if 		incomequality  == 2 
 	tab 			income_demo income_scr if incomequality  == 2
 
 	 
 * ***AGE - Screener vs. Demographics***** 
 * NOTE: JHU Income vars: Screener Section is Qs6;  Demographics Section is Q22 
+
+											
+											/* The age variable in the screener is called 'scrn_age_group' */ 
+											/* This code doesn't run */ 
 
 	destring 		Qs6, replace 			
 	gen 			age_scr  =  Qs6 
