@@ -2,7 +2,7 @@
 * created on: July 2020
 * created by: fd + lm 
 * edited by: alj, fa 
-* last edited: 26 august 2020 
+* last edited: 28 august 2020 
 * Stata v.15.1 / 16 
 
 * does
@@ -10,15 +10,25 @@
 		*** update with your sample 
 	* cleans qualtrics response data
 	* outputs asfood_security_data_cleaned.csv
+	
+	* set terms for export from qualtrics 
 
 
 * assumes
 	* update with appropriate commands
 	* files ? 
 	* qualtrics exports codes SEEN BUT UNANSWERED variables as "-99"
+	* .a to . (. == if SHOULD have answered, would be otherwise) 
+	* .c v .a ?? 
 
 * to do:
 	* formatting
+	* post covid variables 
+	
+	* run on arizona sample 
+	
+	* which income to use = use screener one 
+	* numeric rather than string 
 
 * **********************************************************************
 * 0 - setup
@@ -44,6 +54,7 @@
 * load your own data - currently loading dummy sample from arizona 
 * USE .csv file
 * CAPITALIZATION ISSUES WITH NOT USING CSV 
+* can deal with this internally 
 
 	insheet using			"Arizona data (8_12_20).csv", names
 
@@ -181,6 +192,8 @@
 	}	   
 	   
 	tab1 				*_prior, miss
+	
+	*** CREATE USED SINCE VARIABLE
 	
 * Item 2 (Qualtrics var names "Q2#covid" & "Q2#year"): How true are these 
 * statements about your household’s food situation in the year before the 
