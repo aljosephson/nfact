@@ -30,6 +30,11 @@
 	cd 						"/Users/lauramccann/Box"
 	
 	*cd 					"C:\Users\facciai\Desktop\
+	
+* start log
+	cap log off 
+	log using ""
+	*** will need to enter file
 
 * ***********************************************************************
 * 1 - prepare exported data
@@ -38,6 +43,7 @@
 * load data
 * load your own data - currently loading dummy sample from arizona 
 * USE .csv file
+* CAPITALIZATION ISSUES WITH NOT USING CSV 
 
 	insheet using			"Arizona data (8_12_20).csv", names
 
@@ -57,6 +63,8 @@
 	label var				scrn_lived_AZ "Screen: Lived in AZ since 1/1/2020"
 	rename					qs6 scrn_age_group
 	label var				scrn_age_group "Screen: Age Group"
+	label define 			age_screener 1 "< 18 yrs" 2 "18-34 yrs" 3 "35-54 yrs" 4 "55 yrs+"
+	label 					values scrn_age_group Age_Screener 
 	rename					qs7 scrn_genderid
 	label var				scrn_genderid "Screen: Gender Identity"
 	rename					qs7_5_text text_scrn_genderid
@@ -72,7 +80,8 @@
 	rename					qs11 scrn_income
 	label var				scrn_income "Screen: Income"
 	
-	
+* Create Observation ID variable - to easily identify data point for potential removal 
+	generate 				obs_Id= _n
 
 * ***********************************************************************
 * 2 - Internal Consistency and screener questions. "MS" indicates response
@@ -986,14 +995,13 @@ foreach v of varlist *_fut {
 	gen 				diet_change = .a
 	replace 			diet_change = 1 if diet_change_allergy == "1" | diet_change_sensitive == "1" | diet_change_health == "1"|diet_change_religion == "1" |diet_veg == "1"|diet_weight == "1" |diet_other == "1"
 	replace 			diet_change = 0 if diet_special == 8
-	replace 			diet_change = -99 if diet_change_allergy == "-99" | diet_change_sensitive == "-99" | diet_change_health == "-99"|diet_change_religion == "-99" |diet_veg == "-99"|diet_weight == "-99" |diet_other == "-99"
+	replace 			diet_change = -99 if diet_change_allergy == "-99" | diet_change_sensitive == "-99" ///
+							| diet_change_health == "-99"|diet_change_religion == "-99" |diet_veg == "-99"|diet_weight == "-99" |diet_other == "-99"
 	mvdecode 			diet_change, mv(-99 = .)
 	label var 			diet_change "Hard to meet special diet needs since COVID"
 
 	
 ** QUESTION: looks like in the survey there might be a value of "88" assigned for "NA"
-* how to handle that? lem	
-	
 	
 * Item 12 (codebook question 12) - The next questions are about how you have
 * been eating in the past month during the COVID-19 outbreak (since March 11th).
@@ -1361,7 +1369,7 @@ foreach v of varlist *_fut {
 * N/A for AZ Team
 
 
-/* **********************************************************************
+* **********************************************************************
 * 8 - end matter
 * **********************************************************************
 
