@@ -13,25 +13,21 @@
 * assumes
 	* MS designates "multiple select" question from survey
 	* access to code book 
+	
+* notes 
+/* ON TYPES OF MISSING VALUES
+
+	* SYSTEM MISSING (missing observations from respondents who DID SEE a 
+		question and did NOT answer it) are recorded in Qualtrics as -99 and 
+		in Stata as "."
+	* OMITTED MISSING (i.e., missing values from questions respondents DID NOT
+		see, due to survey logic, and did NOT (could not) answer) are 
+		recorded in Qualtrics as BLANKS and Stata as ".a"
+	* Values of "I DON'T KNOW" are coded as 99 
+	* Values of "DOES NOT APPLY / NOT APPLICABLE ' ETC. are coded as 88 */	
+
 
 * to do:
-	* post covid variables 
-
-	
-	* which income to use = use screener one 
-	* numeric rather than string 
-	
-	* missing == -99 --> . unless (below did not see question)
-	* did not see the question == .a / .c 
-	* 99 == don't know
-	* 88 = doesn't not apply
-	
-	* update with appropriate commands
-	* files ? 
-	* qualtrics exports codes SEEN BUT UNANSWERED variables as "-99"
-	* .a to . (. == if SHOULD have answered, would be otherwise) 
-	* .c v .a ?? 
-	
 	* check mvdevcode: include?
 	
 
@@ -110,19 +106,8 @@
 * ***********************************************************************
 * 3 - Part 1/5: General Food Access
 *     Created by: lem, Joelle
+*	  edited by: alj
 * ***********************************************************************	
-
-/* NOTE ON TYPES OF MISSING VALUES
-
-	* SYSTEM MISSING (missing observations from respondents who DID SEE a 
-		question and did NOT answer it) are recorded in Qualtrics as -99 and 
-		in Stata as "."
-	* OMITTED MISSING (i.e., missing values from questions respondents DID NOT
-		see, due to survey logic, and did NOT (could not) answer) are 
-		recorded in Qualtrics as BLANKS and Stata as ".a"
-	* Values of "I DON'T KNOW" are coded as 99 
-	* Values of "DOES NOT APPLY / NOT APPLICABLE ' ETC. are coded as 88 */	
-
 
 * Item 1 (Qualtrics var name "Q1"): Which of the following places did your 
 * household use to get food in the last year and since the COVID-19 outbreak 
@@ -791,7 +776,7 @@ tab money*, miss
 * ***********************************************************************
 * 4 - Part 2/5: Food Access
 *     Created by: lem
-*	  last updated: 07_21_2020
+*	  edited by: alj
 * ***********************************************************************	
 
 * Item 8 (Qualtrics var name "Q8"): What, if anything, would make it easier 
@@ -817,11 +802,11 @@ tab money*, miss
 foreach v of varlist helpful* {    
 	   rename `v' `v'_temp
 	   encode `v'_temp, gen (`v') 
-	   replace			`v' = .a
+	   replace			`v' = .
 	   replace 			`v'= 0 if `v'_temp == "0" 
 	   replace 			`v' = 1 if `v'_temp == "1"
 	   replace 			`v' = 88 if `v'_temp == "-88"
-	   replace 			`v' = . if `v'_temp == "-99"
+	   replace 			`v' = .a if `v'_temp == "-99"
 	   lab def 			`v'_lab8  1 "Helpful" 0 "Not helpful" 88 "Do not need this help"		
 	   lab val 			`v'  `v'_lab8
 	   drop 			*_temp	
@@ -858,7 +843,7 @@ foreach v of varlist helpful* {
 foreach v of varlist worry_* {    
 	   rename 			`v' `v'_temp
 	   encode 			`v'_temp, gen (`v') 
-	   replace			`v' = .a
+	   replace			`v' = .
 	   replace 			`v' = 1 if `v'_temp == "1" 
 	   replace 			`v' = 2 if `v'_temp == "2"
 	   replace 			`v' = 3 if `v'_temp == "3"
@@ -866,7 +851,7 @@ foreach v of varlist worry_* {
 	   replace 			`v' = 5 if `v'_temp == "5" 
 	   replace 			`v' = 6 if `v'_temp == "6"
 	   replace 			`v' = 88 if `v'_temp == "88"
-	   replace			`v' = . if `v'_temp == "-99"
+	   replace			`v' = .a if `v'_temp == "-99"
 	 lab def 			`v'_lab9  1 "1 (not worried at all)" 2 "2" ///
 						3 "3" 4 "4" ///
 						5 "5" 6 "6 (very worried)" 88 "Not Applicable"
@@ -900,14 +885,14 @@ foreach v of varlist worry_* {
 foreach v of varlist *_cur {    
 	   rename 			`v' `v'_temp
 	   encode 			`v'_temp, gen (`v') 
-	   replace			`v' = .a
+	   replace			`v' = .
 	   replace 			`v'= 0 if `v'_temp == "-99" 
 	   replace 			`v' = 1 if `v'_temp == "1"
 	   lab def 			`v'_lab10a  1 "Yes" 0 "No" 			
 	   lab val 			`v'  `v'_lab10a
 	   drop 			*_temp	 
 	   }	
-
+	
 
 	tab1 				*_cur, miss 
 
@@ -936,7 +921,7 @@ foreach v of varlist *_cur {
 foreach v of varlist *_fut {    
 	   rename `v' `v'_temp
 	   encode `v'_temp, gen (`v')
-	   replace			`v' = .a 
+	   replace			`v' = .
 	   replace 			`v' = 1 if `v'_temp == "1" 
 	   replace 			`v' = 2 if `v'_temp == "2"
 	   replace 			`v' = 3 if `v'_temp == "3"
@@ -944,13 +929,13 @@ foreach v of varlist *_fut {
 	   replace 			`v' = 5 if `v'_temp == "5" 
 	   replace			`v' = 6 if `v'_temp == "6"
 	   replace 			`v' = 99 if `v'_temp == "99"
-	   replace			`v' = -99 if `v'_temp == "-99"
-	   mvdecode 		`v', mv(-99 = . \ 99 = .c)
+	   replace			`v' = .a if `v'_temp == "-99"
 	   lab def 			`v'_lab10b  1 "Very unlikely" 2 "Unlikely" ///
 							3 "Somewhat unlikely" 4 "Somewhat likely" ///
-							5 "Likely" 6 "Very likely" 
+							5 "Likely" 6 "Very likely" 99 "Not applicable"
 	   lab val 			`v'  `v'_lab10b
 	   }	
+	*** removed: 	  mvdecode 	`v', mv(-99 = . \ 99 = .c)
 
 	tab1 				*_fut, miss 
 
@@ -964,6 +949,7 @@ foreach v of varlist *_fut {
 * ***********************************************************************
 * 5 - Part 3/5: Eating and Purchasing Behaviors
 *     Created by: fd
+* 	  edited by : alj 
 * ***********************************************************************	
 
 * Item 11 (qualtrics var name Q11) - Do you or someone in your household have 
@@ -976,7 +962,7 @@ foreach v of varlist *_fut {
 	
 
 	encode					diet_special1, gen (diet_special)
-	replace 				diet_special = .a 
+	replace 				diet_special = .
 	replace 				diet_special = 1 if diet_special1 == "1"
 	replace 				diet_special = 2 if diet_special1 == "2"
 	replace 				diet_special = 3 if diet_special1 == "3"
@@ -985,16 +971,17 @@ foreach v of varlist *_fut {
 	replace 				diet_special = 6 if diet_special1 == "6"
 	replace 				diet_special = 7 if diet_special1 == "7"
 	replace 				diet_special = 8 if diet_special1 == "8"
-	replace					diet_special = -99 if diet_special1 == "-99"
+	replace					diet_special = .a if diet_special1 == "-99"
 	replace					diet_special = 99 if diet_special1 == "99"
-	mvdecode 				diet_special, mv(-99 = . \ 99 = .c)
+	*mvdecode 				diet_special, mv(-99 = . \ 99 = .c)
 	drop					diet_special1
 		
 	label 					define diet 1 "Food allergy that requires avoiding some foods" ///
 							2 "Food sensitivity that causes problems from eating some foods" ///
 							3 "Need to avoid some foods for health condition like diabetes or kidney disease" ///
 							4 "Religious restriction" 5 "Vegetarian/Vegan" 6 "Weight loss diet that requires special foods" ///
-							7 "Other" 8 "No one in my household has a special diet"
+							7 "Other" 8 "No one in my household has a special diet" ///
+							99 "Not applicable"
 	
 	label values 			diet_special diet
 	label var				diet_special "Household member has special diet"
@@ -1023,76 +1010,70 @@ foreach v of varlist *_fut {
 * binary variable where 1 = "Yes" (i.e. the respondent found a challenge with
 * finding food that meets their special diets since 3/11 and 0 otherwise. accounts for no special diet response + system missings
 
-	gen 				diet_change = .a
-	replace 			diet_change = 1 if diet_change_allergy == "1" | diet_change_sensitive == "1" | diet_change_health == "1"|diet_change_religion == "1" |diet_veg == "1"|diet_weight == "1" |diet_other == "1"
+	gen 				diet_change = .
+	replace 			diet_change = 1 if diet_change_allergy == "1" | diet_change_sensitive == "1" | ///
+							diet_change_health == "1"|diet_change_religion == "1" |diet_veg == "1"|diet_weight == "1" |diet_other == "1"
 	replace 			diet_change = 0 if diet_special == 8
 	replace 			diet_change = -99 if diet_change_allergy == "-99" | diet_change_sensitive == "-99" ///
 							| diet_change_health == "-99"|diet_change_religion == "-99" |diet_veg == "-99"|diet_weight == "-99" |diet_other == "-99"
-	mvdecode 			diet_change, mv(-99 = .)
+	*mvdecode 			diet_change, mv(-99 = .)
 	label var 			diet_change "Hard to meet special diet needs since COVID"
-
-	
-** QUESTION: looks like in the survey there might be a value of "88" assigned for "NA"
 	
 * Item 12 (codebook question 12) - The next questions are about how you have
 * been eating in the past month during the COVID-19 outbreak (since March 11th).
-
-	* FD: in codebook but not in az survey
 	
-	*rename 				Q121 eating_fruit
-	*rename 				Q122 eating_vegtables
-	*rename 				Q123 eating_redmeat
-	*rename 				Q124 eating_procmeat
+	rename 				Q121 eating_fruit
+	rename 				Q122 eating_vegtables
+	rename 				Q123 eating_redmeat
+	rename 				Q124 eating_procmeat
 	
-	*label define 			eating_fruit_veg 0 "None" 1 "1/2 cup or less" 2 "1/2 to 1 cup" 3 "1 - 2 cups" 4 "2 - 3 cups" 5 "3 - 4 cups" 6 "4 or more cups"
-	*label define 			eating_redmeat_procmeat 0 "Never" 1 "1 times last month" 2 "2 - 3 times last month" 3 "1 time per week" 4 "2 times per week" 5 "3 - 4 times per week" 6 "5 - 6 times per week" 7 "1 time per day" 8 "2 or more times per day"
+	label define 			eating_fruit_veg 0 "None" 1 "1/2 cup or less" 2 "1/2 to 1 cup" ///
+								3 "1 - 2 cups" 4 "2 - 3 cups" 5 "3 - 4 cups" 6 "4 or more cups"
+	label define 			eating_redmeat_procmeat 0 "Never" 1 "1 times last month" ///
+								2 "2 - 3 times last month" 3 "1 time per week" 4 "2 times per week"///
+								5 "3 - 4 times per week" 6 "5 - 6 times per week" 7 "1 time per day" 8 "2 or more times per day"
 	
-	*label values 			eating_fruit eating_fruit_veg
-	*label values 			eating_vegtables eating_fruit_veg
-	*label values 			eating_redmeat eating_redmeat_procmeat
-	*label values 			eating_procmeat eating_redmeat_procmeat
-	*label define 			Less_more 1 "Less" 2 "Same" 3 "More"
-	*label values 			eating_comp_fruitveg eating_comp_meats eating_comp_seafood Less_more
+	label values 			eating_fruit eating_fruit_veg
+	label values 			eating_vegtables eating_fruit_veg
+	label values 			eating_redmeat eating_redmeat_procmeat
+	label values 			eating_procmeat eating_redmeat_procmeat
+	label define 			Less_more 1 "Less" 2 "Same" 3 "More"
+	label values 			eating_comp_fruitveg eating_comp_meats eating_comp_seafood Less_more
 	
 * Item 13 (codebook question 13) - Please indicate your level of agreement with 
 * the following statements regarding eating during the COVID-19 outbreak
 * (since March 11th)
-
-	* FD: in codebook but not in az survey
 	
-	*label define 			eathabits 1 "Strongly disagree" 2 "Disagree" 3 "Neither agree nor disagree" 4 "Agree" 5 "Strongly agree" 88 "Not applicable"
+	label define 			eathabits 1 "Strongly disagree" 2 "Disagree" 3 "Neither agree nor disagree" 4 "Agree" 5 "Strongly agree" 88 "Not applicable"
 	
-	*label values 			eathabits_emotional eathabits_lonely eathabits_stress eathabits_comfort eathabits
+	label values 			eathabits_emotional eathabits_lonely eathabits_stress eathabits_comfort eathabits
 	
 * Item 14 (codebook question 14) - Please indicate whether any of the 
 * following is true about your eating and shopping behaviors in the year before
 * the COVID-19 outbreak and since the COVID-19 outbreak (March 11th):
-
-	* FD: in codebook but not in az survey
 	
-	*label define behaviors 1 "Never true" 2 "Sometimes true" 3 "Often true" 99 "I dont know"
-	*label values behaviors_local_year behaviors_pack_year behaviors_bags_year behaviors_veg_year behaviors_sust_year behaviors_local_covid behaviors_pack_covid behaviors_bags_covid behaviors_veg_covid behaviors_sust_covid behaviors
-	
+	label define 			behaviors 1 "Never true" 2 "Sometimes true" 3 "Often true" 99 "I dont know"
+	label values 			behaviors_local_year behaviors_pack_year behaviors_bags_year ///
+								behaviors_veg_year behaviors_sust_year behaviors_local_covid ///
+								behaviors_pack_covid behaviors_bags_covid behaviors_veg_covid behaviors_sust_covid behaviors
 	
 * Item 15 (Qualtrics var name Q15) - Please indicate whether any of the 
 * following is true about your eating and shopping behaviors in the year before
 * the COVID-19 outbreak and since the COVID-19 outbreak (March 11th):
 	
-	
 * loop to recode, appends "temp" to source vars and renames encoded vars		
-
 
 	foreach v of varlist habits* {
 		rename `v' temp_`v'
-		gen `v'_my = .a
-		replace `v'_my = . if temp_`v' == "-99"
+		gen `v'_my = .
+		replace `v'_my = .a if temp_`v' == "-99"
 		replace `v'_my = 1 if temp_`v' == "1" | temp_`v' == "1,2"
 		replace `v'_my = 0 if temp_`v' == "2"
 		label def			`v'_1 1 "Yes" 0  "No"
 		label values          `v'_my `v'_1
 		
-		gen `v'_usavg = .a
-		replace `v'_usavg = . if temp_`v' == "-99"
+		gen `v'_usavg = .
+		replace `v'_usavg = .a if temp_`v' == "-99"
 		replace `v'_usavg = 1 if temp_`v' == "2" | temp_`v' == "1,2"
 		replace `v'_usavg = 0 if temp_`v' == "1"
 		label def				 `v'_2  1 "Yes" 0 "No"
@@ -1101,8 +1082,7 @@ foreach v of varlist *_fut {
 		drop					temp_`v'
 		}
 	
-	* label "My Household" habits vars
-
+* label "My Household" habits vars
 	lab var 				habits_buymore_my "Habits: My Household: Bought More Food"
 	lab var			  	 	habits_deliver_my "Habits: My Household: Deliver Food to Others"
 	lab var 				habits_donate_my "Habits: My Household: Donate"
@@ -1115,7 +1095,7 @@ foreach v of varlist *_fut {
 	lab var					habits_volunteer_my "Habits: My Household: Volunteer"
 	lab var					habits_mask_my "Habits: My Household: Wear Mask"
 	
-	* label "Avg US Household" habits vars
+* label "Avg US Household" habits vars
 	lab var 				habits_buymore_usavg "Habits: Avg US Household: Bought More Food"
 	lab var			  	 	habits_deliver_usavg "Habits:Avg US Household: Deliver Food to Others"
 	lab var 				habits_donate_usavg "Habits: Avg US Household: Donate"
@@ -1132,15 +1112,15 @@ foreach v of varlist *_fut {
 * ***********************************************************************
 * 6 - Part 4/5: Perspectives and Experience
 *     Created by: fd
+* 	  edited by: alj 
 * ***********************************************************************
 	
 * Item 16 (Qualtrics var name Q16) - On a scale from 1 (strongly disagree) to 6
 * (strongly agree), how much do you agree with the following statements:
 
-	* label persp vars
+* label persp vars
 	
-	label var 				persp_vt "Perspective: Other States More Affected than Mine" 
-							*here refers to AZ
+	label var 				persp_st "Perspective: Other States More Affected than Mine" 
 	label var 				persp_us "Perspective: Other Countries More Affected than US"
 	label var				persp_me "Perspective: COVID-19 Will Affect People Like Me"
 	label var				persp_flu "Perspective: COVID-19 Like Seasonal Flu"
@@ -1156,17 +1136,13 @@ foreach v of varlist *_fut {
 	
 * For each "perspective" variable:
 
-* REPLACE original string values with numeric values 
-* replace with SYSTEM missings if variable is less than or equal to zero AND NOT -99
-* relabel including "I don't know" value ".c" and deliberate missing "."
-
 ** Note: survey does not specify non-numeric interpretations for scale values 
 ** beyond 1 (strongly disagree) and 6 (strongly agree). 
 	
 	foreach v of varlist persp* {
 	destring 		`v', replace
-	replace 		`v' = .a if `v' < = 0 & `v' != -99
-	label define 	`v'_persp 1 "1 (strongly disagree)" 2 "2" 3 "3" 4 "4" 5 "5" 6 "6 (strongly agree)" 99 ".c" -99 "."
+	replace 		`v' = . if `v' < = 0 & `v' != -99
+	label define 	`v'_persp 1 "1 (strongly disagree)" 2 "2" 3 "3" 4 "4" 5 "5" 6 "6 (strongly agree)" 99 ".a" -99 "."
 	label values 	`v' `v'_persp
 	}
 	
@@ -1176,10 +1152,8 @@ foreach v of varlist *_fut {
 * Item 17 (Qualtrics var name Q17) - Do you anyone with symptoms of, or 
 * diagnosed with, the coronavirus (COVID-19)? If so, who? Check all that apply.
 
-	* clean and label know var
-
 	rename 					q17 know1	
-	gen 					know = .a
+	gen 					know = .
 	replace 				know = 1 if know1 == "1"
 	replace 				know = 2 if know1 == "2"
 	replace 				know = 3 if know1 == "3"
@@ -1195,9 +1169,16 @@ foreach v of varlist *_fut {
 	replace 				know = 13 if know1 == "2,4"
 	replace 				know = 14 if know1 == "2,3,4"
 	replace 				know = 15 if know1 == "3,4"
-	replace					know = . if know1 == "-99"
+	replace					know = .a if know1 == "-99"
 	
-	label define 			lab_know 1 "Yes, family" 2 "Yes, friend(s)" 3 "Yes, myself" 4 "Yes, other" 5 "No, I don't know anyone" 6 "Yes, family and friends" 7 "Yes, family and myself" 8 "Yes, family and other" 9 "Yes, family and friend(s) and myself" 10 "Yes, family and friend(s) and other" 11 "Yes, family and friend(s) and myself and other" 12 "Yes, friend(s) and myself" 13 "Yes, friend(s) and other" 14 "Yes, friend(s) and myself and other" 15 "Yes, myself and other"
+	label define 			lab_know 1 "Yes, family" 2 "Yes, friend(s)" 3 "Yes, myself" ///
+								4 "Yes, other" 5 "No, I don't know anyone" ///
+								6 "Yes, family and friends" 7 "Yes, family and myself" ///
+								8 "Yes, family and other" 9 "Yes, family and friend(s) and myself" ///
+								10 "Yes, family and friend(s) and other" ///
+								11 "Yes, family and friend(s) and myself and other" ///
+								12 "Yes, friend(s) and myself" 13 "Yes, friend(s) and other" ///
+								14 "Yes, friend(s) and myself and other" 15 "Yes, myself and other"
 	
 	label values 			know lab_know
 	label var				know "Know Anyone Diagnosed or With Symptoms"
@@ -1219,14 +1200,13 @@ foreach v of varlist *_fut {
 * Item 18 (Qualtrics var name Q18) - Have you had to quarantine in your home due 
 * to coronavirus (for example because of illness or exposure symptoms)?
 
-* Label, destring, account for deliberate missing values
 	
 	rename 					q18 know_quaran
 	label var				know_quaran "Know Quarantine"
 	destring				know_quaran, replace
 	label define 			no_yes 0 "No" 1 "Yes"
 	label values 			know_quaran no_yes
-	replace					know_quaran = . if know_quaran == -99
+	replace					know_quaran = .a if know_quaran == -99
 
 	tab 					know_quaran, miss
 
@@ -1234,13 +1214,14 @@ foreach v of varlist *_fut {
 * ***********************************************************************
 * 7 - Part 5/5: Demographics
 *     Created by: fd
+* 	  edited by: alj
 * ***********************************************************************	
 
 * Item 19 (Qualtrics var name Q19) -  How many people in the following age 
 * groups currently live in your household (household defined as those currently
 * living within your household, including family and non-family members)? 
 
-	* destring and label num vars
+* destring and label num vars
 	
 	destring 				num_people_under5 num_people_517 num_people_1865 num_people_65up, replace
 	
@@ -1248,10 +1229,10 @@ foreach v of varlist *_fut {
 	label var				num_people_517 "Number of People in Household Ages 15-17"
 	label var 				num_people_1865 "Number of People in Household  Ages 18-65"
 	label var 				num_people_65up "Number of People in Household Ages 65 and up"
-	recode 					num_people_under5 num_people_517 num_people_1865 num_people_65up (-99 = .)
-	*recode 				num_people_under5 num_people_517 num_people_1865 num_people_65up (-99 = 0)
+	recode 					num_people_under5 num_people_517 num_people_1865 num_people_65up (-99 = .a)
+	*recode 					num_people_under5 num_people_517 num_people_1865 num_people_65up (-99 = 0)
 	
-	tab1 					num_people*, miss	/* Major problem: can we assume that the '-99' are '0'? */ 
+	tab1 					num_people*, miss	
 
 	
 * Item 20 (Qualtrics var name Q20) - Which of the following best describes your 
@@ -1261,7 +1242,18 @@ foreach v of varlist *_fut {
 
 	destring 				q20, replace 	
 	rename 					q20 occupation
-	label define 			Occupation 1 "Not currently employed" 2 "Agriculture, Forestry, Fishing and Hunting" 3 "Arts, Entertainment, and Recreation" 4 "Broadcasting and MEdia" 5 "Childcare Provider" 6 "Clerical/Administrative" 7 "College, University, and Adult Education" 8 "Computer and Electronics Manufacturing" 9 "Construction" 10 "Disabled and on Disability Benefits" 11 "FInance and Insurance" 12 "Food and Beverage Services" 13 "Government and Public Administration" 14 "Health Care and Social Assistance" 15 "Homemaker" 16 "Hotel and Hospitality Services" 17 "Information Services and Data Processing" 18 "Legal Services" 19 "Military" 20 "Mining" 21 "Other Information Industry" 22 "Other Manufactoring" 23 "Primary/Secondary (K-12) Education" 24 "Publishing" 25 "Real Estate, Rental, and Leasing" 26 "Religious" 27 "Retail" 28 "Retired" 29 "Scientific or Technical Services" 30 "Self-employed" 31 "Software" 32 "Student" 33 "Telecommunications" 34 "Transportation and Warehousing" 35 "Utilities" 36 "Other (please describe below if selected) "
+	label define 			Occupation 1 "Not currently employed" 2 "Agriculture, Forestry, Fishing and Hunting" ///
+								3 "Arts, Entertainment, and Recreation" 4 "Broadcasting and MEdia" 5 "Childcare Provider" ///
+								6 "Clerical/Administrative" 7 "College, University, and Adult Education" ///
+								8 "Computer and Electronics Manufacturing" 9 "Construction" 10 "Disabled and on Disability Benefits"///
+								11 "FInance and Insurance" 12 "Food and Beverage Services" 13 "Government and Public Administration" ///
+								14 "Health Care and Social Assistance" 15 "Homemaker" 16 "Hotel and Hospitality Services"///
+								17 "Information Services and Data Processing" 18 "Legal Services" 19 "Military" ///
+								20 "Mining" 21 "Other Information Industry" 22 "Other Manufactoring" ///
+								23 "Primary/Secondary (K-12) Education" 24 "Publishing" 25 "Real Estate, Rental, and Leasing" ///
+								26 "Religious" 27 "Retail" 28 "Retired" 29 "Scientific or Technical Services" 30 "Self-employed" ///
+								31 "Software" 32 "Student" 33 "Telecommunications" 34 "Transportation and Warehousing" ///
+								35 "Utilities" 36 "Other (please describe below if selected) "
 	
 	label values 			occupation Occupation
 	label var 				occupation "Occupation"
@@ -1274,31 +1266,31 @@ foreach v of varlist *_fut {
 	
 * Item 21 (Qualtrics var name Q21b) - What is your ZIP Code?
 
-	* Labels for Q21b
+* Labels for Q21b
 	
 	rename 					q21b zipcode
 	destring 				zipcode, replace
 	label var 				zipcode "ZIP code"
-	replace					zipcode = . if zipcode == -99
+	replace					zipcode = .a if zipcode == -99
 	
 	tab1 					zipcode, miss
 	
 
 * Item 22 (Qualtrics var name Q22) - In what year were you born?
 
-	* labels for Q22
+* labels for Q22
 	
 	rename 					q22 year_born
 	destring 				year_born, replace
 	label var 				year_born "Year Born"
-	replace					year_born=. if year_born == -99
+	replace					year_born= .a if year_born == -99
 	
 	tab1 					year_born, miss 	
 	
 	
 * Item 23 (Qualtrics var name Q24) - Are you of Hispanic, Latino, or Spanish Origin?
 
-	* labels for Q24
+* labels for Q24
 	
 	rename 					q24 ethnicity
 	destring 				ethnicity, replace
@@ -1307,7 +1299,7 @@ foreach v of varlist *_fut {
 	label var 				ethnicity "Ethnicity"
 	label var 				q24_4_text "Ethnicity Text"
 	rename 					q24_4_text ethnicity_text
-	replace					ethnicity_text ="." if ethnicity_text== "-99"
+	replace					ethnicity_text = ".a" if ethnicity_text== "-99"
 	
 	* binary variable where values 1-4 of ethnicity are recoded as 1 and 0 otherwise (implies 0 is non-hispanic)
 	
@@ -1326,11 +1318,12 @@ foreach v of varlist *_fut {
 
 	
 * code race as "2 or more" if the values contain a comma (i.e., if there are multiple responses)	
-	replace race_temp = "6" if strpos(race_temp, ",")
+	replace 				race_temp = "6" if strpos(race_temp, ",")
 	destring				race_temp, replace
 	recode 					race_temp (12 = 1) (3 = 2) (1 = 3) (2 4 5 6 7 8 11 = 4) (9 10 13 = 5) (. = 14), generate(race)
 	label var				race "Race"
-	label 					define race_label 1 "White" 2 "Black or African American" 3 "American Indian or Alaskan Native" 4 "Asian" 5 "Other" 6 "2 or more" 
+	label 					define race_label 1 "White" 2 "Black or African American" ///
+								3 "American Indian or Alaskan Native" 4 "Asian" 5 "Other" 6 "2 or more" 
 	label values			race race_label
 	drop					race_temp
 	
@@ -1338,11 +1331,13 @@ foreach v of varlist *_fut {
 * Item 25 (Qualtrics var name Q27) - Which of the following best describes your
 * household income range in 2019 before taxes?
 
-	* labels for Q27
+* labels for Q27
 
 	rename 					q27 income
 	destring				income, replace	
-	label define 			Income 1 "Less than $10,000" 2 "$10,000 to $14,999" 3 "$15,000 to $24,999" 4 "$25,000 to $34,999" 5 "$35,000 to $49,999" 6 "$50,000 to $74,999" 7 "$75,000 to $99,999" 8 "$100,000 to $149,000" 9 "$150,000 to $199,999" 10 "$200,000 or more" -99 "."
+	label define 			Income 1 "Less than $10,000" 2 "$10,000 to $14,999" 3 "$15,000 to $24,999" ///
+								4 "$25,000 to $34,999" 5 "$35,000 to $49,999" 6 "$50,000 to $74,999" ///
+								7 "$75,000 to $99,999" 8 "$100,000 to $149,000" 9 "$150,000 to $199,999" 10 "$200,000 or more" -99 ".a"
 	label values 			income Income
 	label var 				income "Income Range"	
 	
@@ -1352,11 +1347,11 @@ foreach v of varlist *_fut {
 	
 * Item 26 (Qualtrics var name Q28) - How long have you lived in the United States?
 
-	* labels for Q28
+* labels for Q28
 
 	destring 				q28, replace 	
 	rename 					q28 years_usa
-	label define 			years_in_usa 1 "I was born in the US" 2 "Less than 5 years" 3 "5 - 10 years" 4 "10 or more years" -99 "."
+	label define 			years_in_usa 1 "I was born in the US" 2 "Less than 5 years" 3 "5 - 10 years" 4 "10 or more years" -99 ".a"
 	label values 			years_usa years_in_usa
 	label var 				years_usa "Years Living in USA"
 
@@ -1370,12 +1365,13 @@ foreach v of varlist *_fut {
 
 	destring 				q29, replace
 	rename 					q29 political
-	label define 			Political 1 "Democrat" 2 "Green Party" 3 "Independent" 4 "Libertarian" 5 "No affiliation" 6 "Progressive" 7 "Republican" 8 "Other" -99 "."
+	label define 			Political 1 "Democrat" 2 "Green Party" 3 "Independent" 4 "Libertarian" 5 "No affiliation" ///
+								6 "Progressive" 7 "Republican" 8 "Other" -99 ".a"
 	label values 			political Political
 	label var 				political "Political Affiliation"
 	rename					q29_8_text text_political
 	label var				text_political "Text: Political Affiliation"
-	replace 				text_political = "." if text_political == "-99"
+	replace 				text_political = ".a" if text_political == "-99"
 	tab						political, miss	
 		
 	
@@ -1387,25 +1383,26 @@ foreach v of varlist *_fut {
 	
 	rename 					q30 other_comments
 	label var 				other_comments "Any Other Comments"
-	replace					other_comments ="." if other_comments== "-99"
+	replace					other_comments =".a" if other_comments== "-99"
 
 	tab 					other_comments, miss		
 	
-	
 * ***********************************************************************
 * 7 - Comparisons of screener questions with demographic questions
-*     Created by: TBD
+*    
 * ***********************************************************************	
 
-* N/A for AZ Team
-
+* update later as needed 
+* will include checks done for consistency 
+* these are currently done in Excel
 
 * **********************************************************************
 * 8 - end matter
 * **********************************************************************
 
-
+* save "food_security_data_cleaned.dta", replace
 * save "food_security_data_cleaned.csv", replace
+
 
 * close the log
 	log	close
