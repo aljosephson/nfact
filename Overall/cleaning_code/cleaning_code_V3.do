@@ -11,7 +11,8 @@
 	* outputs as: "food_security_data_cleaned.csv"
 	
 * assumes
-	
+	* MS designates "multiple select" question from survey
+	* access to code book 
 
 * to do:
 	* post covid variables 
@@ -30,6 +31,8 @@
 	* qualtrics exports codes SEEN BUT UNANSWERED variables as "-99"
 	* .a to . (. == if SHOULD have answered, would be otherwise) 
 	* .c v .a ?? 
+	
+	* check mvdevcode: include?
 	
 
 * **********************************************************************
@@ -52,12 +55,9 @@
 * ***********************************************************************
 
 * load data
-* load your own data - currently loading dummy sample from arizona 
-* USE .csv file
-* CAPITALIZATION ISSUES WITH NOT USING CSV 
-* can deal with this internally 
 
-	insheet using			"Arizona data (8_12_20).csv", names
+	insheet using			"", names case(lower)
+	*** put in file name 
 
 * drop Qualtrics survey metadata
 	
@@ -68,7 +68,8 @@
 	drop if 				startdate == "Start Date" 
 	
 	
-* rename and label intro/screener variables 							
+* rename and label intro/screener variables 		
+* want to use screener data for weights, income, etc.					
 	rename					qs3 resp_consent
 	label var				resp_consent "Respondent Consent"
 	rename					qs5 scrn_lived_AZ
@@ -91,33 +92,36 @@
 	label var				scrn_educ "Screen: Education"
 	rename					qs11 scrn_income
 	label var				scrn_income "Screen: Income"
+	label 					define Income_Screener 1 "Less than $10,000"2 "$10,000-$24,999" ///
+								3 "$25,000-$49,999" 4 "$50,000-$74,999" 5 "$75,000-$99,999" 6 "$100,000 or more" 
+	label values 			scrn_income Income_Screener 
 	
-* Create Observation ID variable - to easily identify data point for potential removal 
+* create observation ID variable - to easily identify data point for potential removal 
 	generate 				obs_Id= _n
 
 * ***********************************************************************
-* 2 - Internal Consistency and screener questions. "MS" indicates response
-* 	  allows for multiple selections
+* 2 - internal consistency 
 * ***********************************************************************	
 
-** Joelle's doing this -- will insert code later
+* update later as needed 
+* will include checks done for consistency 
+* these are currently done in Excel
 
 * ***********************************************************************
 * 3 - Part 1/5: General Food Access
 *     Created by: lem, Joelle
-*	  last updated: 07_31_2020
 * ***********************************************************************	
-
 
 /* NOTE ON TYPES OF MISSING VALUES
 
-	* SYSTEM MISSING (i.e., missing values from questions respondents DID NOT
-		see, due to survey logic, and did NOT answer) are recorded in Qualtrics 
-		as BLANKS and Stata as ".a"
-	* DELIBERATE MISSING (missing observations from respondents who DID SEE a 
+	* SYSTEM MISSING (missing observations from respondents who DID SEE a 
 		question and did NOT answer it) are recorded in Qualtrics as -99 and 
 		in Stata as "."
-	* Values of "I DON'T KNOW" are coded as 99 in Qualtrics and ".c" in Stata */	
+	* OMITTED MISSING (i.e., missing values from questions respondents DID NOT
+		see, due to survey logic, and did NOT (could not) answer) are 
+		recorded in Qualtrics as BLANKS and Stata as ".a"
+	* Values of "I DON'T KNOW" are coded as 99 
+	* Values of "DOES NOT APPLY / NOT APPLICABLE ' ETC. are coded as 88 */	
 
 
 * Item 1 (Qualtrics var name "Q1"): Which of the following places did your 
@@ -149,44 +153,43 @@
 	lab var				text_source_yr "Source: Additional sources (year)"
 	lab var				text_source_covid "Source: Additional sources (COVID)"
 	
-* lem QUESTION: what is source_bin? Can't find it in Qualtrics and we already have 2 text fields.
-
-	
 * Recode Loop (Used for Items: )
 	* appends "_temp" to original "source_" variables: `v'_temp
 	* encodes source_ variables generating a numeric var with the original
 		* string vars as value labels: `v'
 	* replaces values in the NEW source var where all values are SYSTEM 
-		* missings: .a
+		* missings: .
 	* replaces values of new label based on values of original var
-	* replaces DELIBERATE missing values with "."
+	* replaces OMITTED missing values with ".a"
 	* defines and assigns labels
 	* drops ORIGINAL string variable: `v'_temp
+	
+	* may need to add "string" command here, depending on export of data 
 
 	foreach v of varlist source* {    
 	   rename 			`v' `v'_temp
 	   encode 			`v'_temp, gen(`v') 
-	   replace			`v' = .a
+	   replace			`v' = .
 	   replace 			`v' = 1 if `v'_temp == "1,2" 
 	   replace 			`v' = 2 if `v'_temp == "1"
 	   replace 			`v' = 3 if `v'_temp == "2"
 	   replace 			`v' = 4 if `v'_temp == "3"
-	   replace			`v' = . if `v'_temp == "-99"
+	   replace			`v' = .a if `v'_temp == "-99"
 	   replace			`v' = 99 if `v'_temp == "99"
-	   mvdecode 		`v', mv(-99 = . \ 99 = .c)
 	   lab def 			`v'_lab1  1 "Always Used" 2 "Stopped Since COVID" 3 ///
 							"Started Since COVID" 4 "Never Used" 
 	   lab val 			`v'  `v'_lab1
 	   drop 			*_temp
 	   }	
+	   *** alj: removed "mvdecode v', mv(-99 = .a)" - do not believe it applies with current code
 	  	  
 	tab1				source_*, miss		    
 	   
 * BINARY VARIABLES LOOP (Used for items:
 * source_X_prior where 1 = used before and 0 otherwise (ie "since")
 	foreach v of varlist source_* {
-	gen 				`v'_prior = .a
-	replace 			`v'_prior = . if `v' == .
+	gen 				`v'_prior = .
+	replace 			`v'_prior = .a if `v' == .a
 	replace 			`v'_prior = 1 if `v' == 1 | `v' == 2
 	replace 			`v'_prior = 0 if `v' == 3 | `v' == 4 
 	label var			`v'_prior "Used `v' before COVID"
@@ -194,8 +197,17 @@
 	   
 	tab1 				*_prior, miss
 	
-	*** CREATE USED SINCE VARIABLE
-	
+* source_X_since where 0 = used before and 1 = used since
+	foreach v of varlist source_* {
+	gen 				`v'_since = .
+	replace 			`v'_since = .a if `v' == .a
+	replace 			`v'_since = 0 if `v' == 1 | `v' == 2
+	replace 			`v'_since = 1 if `v' == 3 | `v' == 4 
+	label var			`v'_since "Used `v' since COVID"
+	}	   
+	   
+	tab1 				*_since, miss
+
 * Item 2 (Qualtrics var names "Q2#covid" & "Q2#year"): How true are these 
 * statements about your household’s food situation in the year before the 
 * COVID-19 outbreak and since the COVID-19 outbreak on March 11th? 
@@ -209,9 +221,8 @@
 	lab var				usda_afford_covid "USDA: Can't afford to eat (COVID)"
 	
 	
-*tab1 usda_foodlast* usda_afford*, miss	
-	
-* recode loop for 
+	tab1 				usda_foodlast* usda_afford*, miss	
+
 
 * --> The food that my household bought just didn't last, and I/we didn't 
 * have money to get more (year before): usda_foodlast_year
@@ -220,47 +231,45 @@
 	foreach v of varlist usda_foodlast_year usda_afford_year{
 		rename 			`v' `v'_temp
 		encode 			`v'_temp, gen(`v')
-		replace 		`v' = .a		  
+		replace 		`v' = .		  
 		replace 		`v' = 1 if `v'_temp == "1" 
 	    replace 		`v' = 2 if `v'_temp == "2"
 	    replace 		`v' = 3 if `v'_temp == "3"
 		replace 		`v' = 99 if `v'_temp == "99"
-		replace 		`v' = -99 if `v'_temp == "-99"
-		mvdecode 		`v', mv(-99 = . \ 99 = .c)
+		replace 		`v' = .a if `v'_temp == "-99"
 		label def 		`v'_lab2_1 1 "Never true" 2 "Sometimes true" ///
 							3 "Often true" 					
 		label values 	`v' `v'_lab2_1
 		drop 			*_temp		 
           }
+		  *** removed mvdevcode command
 
 	tab1 				usda_foodlast_year, miss
 	tab1 				usda_afford_year, miss		  
 		  
-* recode loop for 
 
 * --> The food that my household bought just didn't last, and I/we didn't 
 * have money to get more (since covid): usda_foodlast_covid
 * --> I/we couldn't afford to eat balanced meals (since covid): usda_afford_covid
 
-
 	foreach v of varlist usda_foodlast_covid usda_afford_covid{
 		rename 			`v' `v'_temp
 		encode 			`v'_temp, gen(`v')
-		replace 		`v' = .a		  
+		replace 		`v' = .		  
 		replace 		`v' = 1 if `v'_temp == "1" 
 	    replace 		`v' = 2 if `v'_temp == "2"
 	    replace 		`v' = 3 if `v'_temp == "3"
 		replace 		`v' = 99 if `v'_temp == "0"
-		replace 		`v' = -99 if `v'_temp == "-99"
-		mvdecode 		`v', mv(-99 = . \ 99 = .c)
+		replace 		`v' = .a if `v'_temp == "-99"
 		label def 		`v'_lab2_1 1 "Never true" 2 "Sometimes true" 3 "Often true" 					
 		label values 	`v' `v'_lab2_2
 		drop 			*_temp		 
           }
-		  
+		  *** removed mvdevcode: mvdecode `v', mv(-99 = . \ 99 = .c)
+
 		  		  
-tab1 usda_foodlast_covid, miss
-tab1 usda_afford_covid, miss	
+	tab1 				usda_foodlast_covid, miss
+	tab1 				usda_afford_covid, miss	
 		  
 		  
 * Item 2A: (Qualtrics var name "Q2a#covid" and "Q2a#year"): How true are 
@@ -277,19 +286,20 @@ tab1 usda_afford_covid, miss
 	foreach v of varlist usda_eatless* usda_cutskip* usda_hungry*{
 		rename 			`v' `v'_temp
 		encode 			`v'_temp, gen(`v')
-		replace 		`v' = .a		  
+		replace 		`v' = .		  
 		replace 		`v' = 1 if `v'_temp == "1" 
 	    replace 		`v' = 0 if `v'_temp == "0"
 		replace 		`v' = 99 if `v'_temp == "99"
-		replace 		`v' = -99 if `v'_temp == "-99"
-		mvdecode 		`v', mv(-99 = . \ 99 = .c)
+		replace 		`v' = .a if `v'_temp == "-99"
 		label def 		`v'_lab2_1 1 "Yes" 0 "No" ///
 							3 "Often true" 					
 		label values 	`v' `v'_lab2_3
 		drop 			*_temp		 
           }
+		*** remove:	mvdecode `v', mv(-99 = . \ 99 = .c)
+  
 		  
-tab1 usda_eatless* usda_cutskip* usda_hungry*, miss
+	tab1 				usda_eatless* usda_cutskip* usda_hungry*, miss
 	
 
 * Item 2B: (Qualtrics var name "Q2b#covid" and "Q2b#year"): How often did you 
@@ -302,11 +312,11 @@ tab1 usda_eatless* usda_cutskip* usda_hungry*, miss
 	foreach v of varlist usda_oftencut_year{
 		rename 			`v' `v'_temp
 		encode 			`v'_temp, gen(`v')
-		replace 		`v' = .a		  
+		replace 		`v' = .		  
 		replace 		`v' = 1 if `v'_temp == "1" 
 	    replace 		`v' = 2 if `v'_temp == "2"
 		replace 		`v' = 3 if `v'_temp == "3"
-		replace		    `v' = . if `v'_temp == "-99"
+		replace		    `v' = .a if `v'_temp == "-99"
 		label def 		`v'_lab2_4 	1 "Only 1 or 2 months" ///
 							2 "Some months but not every month" ///
 							3 "Almost every month"			
@@ -317,16 +327,15 @@ tab1 usda_eatless* usda_cutskip* usda_hungry*, miss
 	foreach v of varlist usda_oftencut_covid{
 		rename 			`v' `v'_temp
 		encode 			`v'_temp, gen(`v')
-		replace 		`v' = .a		  
+		replace 		`v' = .		  
 		replace 		`v' = 1 if `v'_temp == "1" 
 	    replace 		`v' = 2 if `v'_temp == "2"
 		replace 		`v' = 3 if `v'_temp == "3"
-		replace		    `v' = . if `v'_temp == "-99"
+		replace		    `v' = .a if `v'_temp == "-99"
 		label def 		`v'oftencutcv 1 "Once" 2 "Twice" 3 "Weekly" 4 "Daily"		
 		label values 	`v' `v'oftencutcv
 		drop 			*_temp		 
           }
-	
 	
 	tab1 				usda_oftencut_year	usda_oftencut_covid, miss 
 
@@ -356,12 +365,12 @@ tab1 usda_eatless* usda_cutskip* usda_hungry*, miss
 	foreach v of varlist prog_* {    
 		rename 			`v' `v'_temp
 		encode 			`v'_temp, gen (`v') 
-		replace			`v' = .a
+		replace			`v' = .
 		replace 		`v' = 1 if `v'_temp == "1,2" 
 		replace 		`v' = 2 if `v'_temp == "1"
 		replace 		`v' = 3 if `v'_temp == "2"
 		replace 		`v' = 4 if `v'_temp == "3"
-		replace			`v' = . if `v'_temp == "-99"
+		replace			`v' = .a if `v'_temp == "-99"
 		lab def 		`v'_lab3  1 "Always Used" 2 "Stopped Since COVID" 3 ///
 						"Started Since COVID" 4 "Never Used"
 		lab val 		`v'  `v'_lab3
@@ -372,7 +381,7 @@ tab1 usda_eatless* usda_cutskip* usda_hungry*, miss
 	   
 *binary variables for prog_X_prior where 1 = used before and 0 otherwise (ie "since")
 	foreach v of varlist prog_* {
-	gen 				`v'_prior = .a	
+	gen 				`v'_prior = .	
 	replace 			`v'_prior = . if `v' == .
 	replace 			`v'_prior = 1 if `v' == 1 | `v' == 2
 	replace 			`v'_prior = 0 if `v' == 3 | `v' == 4 
@@ -404,13 +413,13 @@ tab1 usda_eatless* usda_cutskip* usda_hungry*, miss
 	foreach v of varlist snap_* {    
 	   rename 			`v' `v'_temp
 	   encode 			`v'_temp, gen (`v') 
-	   replace			`v' = .a
+	   replace			`v' = .
 	   replace 			`v' = 1 if `v'_temp == "1" 
 	   replace 			`v' = 2 if `v'_temp == "2"
 	   replace 			`v' = 3 if `v'_temp == "3"
 	   replace 			`v' = 4 if `v'_temp == "4"
 	   replace 			`v' = 5 if `v'_temp == "5" 
-	   replace			`v' = . if `v'_temp == "-99"
+	   replace			`v' = .a if `v'_temp == "-99"
 	   lab def 			`v'_lab3a  1 "Strongly disagree" 2 "Disagree" ///
 						3 "Neither agree nor disagree" 4 "Agree" ///
 						5 "Strongly agree"
@@ -419,7 +428,7 @@ tab1 usda_eatless* usda_cutskip* usda_hungry*, miss
 	   }	
 
 
-tab1 snap_*, miss 
+		tab1 			snap_*, miss 
 
 * Item 3B (Qualtrics var name "Q3b") : Please indicate your level of agreement 
 * regarding using WIC benefits since the COVID-19 outbreak.
@@ -439,13 +448,13 @@ tab1 snap_*, miss
 	foreach v of varlist wic_* {    
 	   rename `v' `v'_temp
 	   encode `v'_temp, gen (`v') 
-	   replace			`v' = .a
+	   replace			`v' = .
 	   replace 			`v' = 1 if `v'_temp == "1" 
 	   replace 			`v' = 2 if `v'_temp == "2"
 	   replace 			`v' = 3 if `v'_temp == "3"
 	   replace 			`v' = 4 if `v'_temp == "4"
 	   replace 			`v' = 5 if `v'_temp == "5" 
-	   replace			`v' = . if `v'_temp == "-99"
+	   replace			`v' = .a if `v'_temp == "-99"
 		lab def 		`v'_lab3b  1 "Strongly disagree" 2 "Disagree" ///
 		3 "Neither agree nor disagree" 4 "Agree" 5 "Strongly agree"
 	   lab val 			`v'  `v'_lab3b
@@ -458,7 +467,6 @@ tab1 snap_*, miss
 * Item 3C (Qualtrics var name "Q3c"): Please indicate your level of agreement 
 * regarding using School Meals for children in your household since the 
 * COVID-19 outbreak.
-
 
 * rename text response vars to keep them out of encoding loop below
 
@@ -482,15 +490,16 @@ tab1 snap_*, miss
 foreach v of varlist school_* {    
 	   rename 			`v' `v'_temp
 	   encode 			`v'_temp, gen (`v') 
-	   replace			`v' = .a
+	   replace			`v' = .
 	   replace 			`v' = 1 if `v'_temp == "1" 
 	   replace 			`v' = 2 if `v'_temp == "2"
 	   replace 			`v' = 3 if `v'_temp == "3"
 	   replace 			`v' = 4 if `v'_temp == "4"
 	   replace 			`v' = 5 if `v'_temp == "5" 
 	   replace			`v' = 88 if `v'_temp == "88"
-	   replace			`v' = . if `v'_temp == "-99"
-	   lab def 			`v'_lab3c  1 "Strongly disagree" 2 "Disagree" 3 "Neither agree nor disagree" 4 "Agree" 5 "Strongly agree" 88 "Not Applicable"
+	   replace			`v' = .a if `v'_temp == "-99"
+	   lab def 			`v'_lab3c  1 "Strongly disagree" 2 "Disagree" 3 "Neither agree nor disagree" ///
+							4 "Agree" 5 "Strongly agree" 88 "Not Applicable"
 	   lab val 			`v'  `v'_lab3c
 	   	drop 			*_temp	    
 	   }	
@@ -524,13 +533,13 @@ foreach v of varlist school_* {
 foreach v of varlist pantry_* {    
 	   rename 			`v' `v'_temp
 	   encode 			`v'_temp, gen (`v') 
-	   replace			`v' = .a
+	   replace			`v' = .
 	   replace 			`v' = 1 if `v'_temp == "1" 
 	   replace 			`v' = 2 if `v'_temp == "2"
 	   replace 			`v' = 3 if `v'_temp == "3"
 	   replace 			`v' = 4 if `v'_temp == "4"
 	   replace 			`v' = 5 if `v'_temp == "5" 
-	   replace			`v' = . if `v'_temp == "-99"
+	   replace			`v' = .a if `v'_temp == "-99"
 	   lab def 			`v'_lab3d  1 "Strongly disagree" 2 "Disagree" 3 "Neither agree nor disagree" 4 "Agree" 5 "Strongly agree" 
 	   lab val 			`v'  `v'_lab3d
 		drop 		    *_temp	
@@ -556,23 +565,19 @@ foreach v of varlist pantry_* {
 foreach v of varlist foodprog_* {    
 	   rename 			`v' `v'_temp
 	   encode 			`v'_temp, gen (`v') 		
-	   replace			`v' = .a
+	   replace			`v' = .
 	   replace 			`v' = 1 if `v'_temp == "1" 
 	   replace 			`v' = 2 if `v'_temp == "2"
 	   replace 			`v' = 3 if `v'_temp == "3"
 	   replace 			`v' = 4 if `v'_temp == "4"
 	   replace 			`v' = 5 if `v'_temp == "5" 
-	   replace			`v' = . if `v'_temp == "-99"
+	   replace			`v' = .a if `v'_temp == "-99"
 	   lab def 			`v'_lab3e  1 "Strongly disagree" 2 "Disagree" 3 "Neither agree nor disagree" 4 "Agree" 5 "Strongly agree"
 	   lab val 			`v'  `v'_lab3e
 	   	drop 			*_temp	
 	   }	
 
 	tab1 				foodprog_*, miss 
-					
-* Why do we have such a low number of missing now?? 
-* Should we recode as missing respondents who DID NOT use any of these programs? 			      
-		
 	
 * Item 4 (Qualtrics var name "Q4"):	What were the typical types of transportation 
 * you used to get food for your household, in the last 12 months and since the 
@@ -602,12 +607,12 @@ foreach v of varlist foodprog_* {
 foreach v of varlist trans_* {    
 	   rename `v' `v'_temp
 	   encode `v'_temp, gen (`v') 
-	   replace			`v' = .a
+	   replace			`v' = .
 	   replace 			`v' = 1  if `v'_temp == "1,2" 
 	   replace 			`v' = 2 if `v'_temp == "1"
 	   replace 			`v' = 3 if `v'_temp == "2"
 	   replace 			`v' = 4 if `v'_temp == "3"
-	   replace			`v' = . if `v'_temp == "-99"
+	   replace			`v' = .a if `v'_temp == "-99"
 	   lab def 			`v'_lab4  1 "Always Used" 2 "Stopped Since COVID" 3 ///
 							"Started Since COVID" 4 "Never Used" 
 	   lab val 			`v'  `v'_lab4
@@ -657,13 +662,13 @@ foreach v of varlist trans_* {
 	foreach v of varlist challenge_* {    
 		   rename `v' `v'_temp
 		   encode `v'_temp, gen (`v') 
-		   replace			`v' = .a
+		   replace			`v' = .
 		   replace 			`v'= 1  if `v'_temp == "1" 
 		   replace 			`v' = 2 if `v'_temp == "2"
 		   replace 			`v' = 3 if `v'_temp == "3"
 		   replace 			`v' = 4 if `v'_temp == "4"
 		   replace			`v' = 88 if `v'_temp == "88"
-		   replace			`v' = . if `v'_temp == "-99"
+		   replace			`v' = .a if `v'_temp == "-99"
 		   lab def 			`v'_lab5  1 "Never" 2 "Sometimes" 3 "Usually" 4 "Every time" 88 "Not Applicable"
 		   lab val 			`v'  `v'_lab5
 			drop 			*_temp	
@@ -691,12 +696,12 @@ foreach v of varlist trans_* {
 	foreach v of varlist job_* {    
 		   rename `v' `v'_temp
 		   encode `v'_temp, gen (`v') 
-		   replace			`v' = .a
+		   replace			`v' = .
 		   replace 			`v' = 1  if `v'_temp == "1,2" 
 		   replace 			`v' = 2 if `v'_temp == "1"
 		   replace 			`v' = 3 if `v'_temp == "2"
 		   replace 			`v' = 4 if `v'_temp == "3"
-		   replace 			`v' = . if `v'_temp == "-99"
+		   replace 			`v' = .a if `v'_temp == "-99"
 		   lab def 			`v'_lab6  1 "Job lost and still lost" 2 "Job lost since COVID" 3 ///
 								"Job reduced hrs income" 4 "Furloughed" 5 "Did not lose job" 
 			drop 			*_temp
@@ -705,18 +710,29 @@ foreach v of varlist trans_* {
 
 *binary variables for job loss where 1 = job lost before COVID and 0 otherwise 
 	foreach v of varlist job* {
-	gen 				`v'_prior = .a	
-	replace 			`v'_prior = . if `v' == .
+	gen 				`v'_prior = .	
+	replace 			`v'_prior = .a if `v' == .a
 	replace 			`v'_prior = 1 if `v' == 1 | `v' == 2
 	replace 			`v'_prior = 0 if `v' == 3 | `v' == 4 | `v' == 5
 	}		
 	
+*binary variables for job loss where 1 = job lost since COVID and 0 otherwise 
+	foreach v of varlist job* {
+	gen 				`v'_since = .	
+	replace 			`v'_since = .a if `v' == .a
+	replace 			`v'_since = 0 if `v' == 1 | `v' == 2
+	replace 			`v'_since = 1 if `v' == 3 | `v' == 4 | `v' == 5
+	}		
 	
 	lab var 			job_loss_prior "Job Binary: Yes, lost income/job"
 	lab var			    job_hours_prior "Job Binary: Yes, reduced hours/income"
 	lab var 			job_furlo_prior "Job Binary: Yes, furloughed"
 	lab var 			job_no_prior "Job Binary: No, no changes"
-		
+
+	lab var 			job_loss_since "Job Binary: Yes, lost income/job"
+	lab var			    job_hours_since "Job Binary: Yes, reduced hours/income"
+	lab var 			job_furlo_since "Job Binary: Yes, furloughed"
+	lab var 			job_no_since "Job Binary: No, no changes"	
 
 	tab1 				job_*, miss     
 
@@ -735,7 +751,7 @@ foreach v of varlist trans_* {
 	foreach v of varlist money {    
 		   rename `v' `v'_temp
 		   encode `v'_temp, gen (`v') 
-		   replace			`v' = .a
+		   replace			`v' = .
 		   replace 			`v' = 1 if `v'_temp == "1" 
 		   replace 			`v' = 2 if `v'_temp == "2"
 		   replace 			`v' = 3 if `v'_temp == "3"
@@ -744,7 +760,7 @@ foreach v of varlist trans_* {
 		   replace 			`v' = 6 if `v'_temp == "1,2"
 		   replace 			`v' = 7 if `v'_temp == "1,3"
 		   replace		    `v' = 8 if `v'_temp == "2,3"
-		   replace			`v' = . if `v'_temp == "-99"
+		   replace			`v' = .a if `v'_temp == "-99"
 		   lab def 			`v'_labm  1 "Federal Stimulus Check" ///
 								2 "Friends or family" ///
 								3 "Unemployment benefits, other" ///
@@ -764,6 +780,7 @@ tab money*, miss
 	gen 				`v'_d = 1	
 	replace 			`v'_d = 0 if `v' == 4
 	replace 			`v'_d = . if `v' == .
+	replace 			`v'_d = .a if `v' == .a 
 	}		
 		
 	label var			money_d "Received Money Binary"
