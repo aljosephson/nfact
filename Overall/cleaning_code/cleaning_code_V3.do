@@ -36,12 +36,12 @@
 
 * set cd 
 	clear					all
-	cd 						""
+	*cd 						""
 	*** need to enter cd 
 	
 * start log
 	cap log off 
-	log using ""
+	log using "G:\My Drive\UA-NFACT\logs\cleaning_v3_alj"
 	*** will need to enter file
 
 * ***********************************************************************
@@ -49,9 +49,14 @@
 * ***********************************************************************
 
 * load data
-
-	insheet using			"", names case(lower)
-	*** put in file name 
+	clear
+	import excel "G:\My Drive\UA-NFACT\data\raw\azdata-numbers1.xlsx", sheet("Sheet0") firstrow case(lower)
+	
+	*** issues with these imports - variables wide instead of long *** 
+	
+	*** put in file name
+	drop in 1	 
+	*** as exported without modifications in excel, will need to drop first row, as it is just a repeat of the labels 
 
 * drop Qualtrics survey metadata
 	
@@ -115,7 +120,6 @@
 
 	rename 				source_othertxt_1 text_source_yr
 	rename 				source_othertxt_2 text_source_covid
-
 
 * label food acquisition vars
 	
