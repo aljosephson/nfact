@@ -2,7 +2,7 @@
 * created on: July 2020
 * created by: fd + lm 
 * edited by: alj, fa 
-* last edited: 29 august 2020 
+* last edited: 31 August 2020 
 * Stata v.15.1 / 16 
 
 * does
@@ -26,10 +26,8 @@
 	* Values of "I DON'T KNOW" are coded as 99 
 	* Values of "DOES NOT APPLY / NOT APPLICABLE ' ETC. are coded as 88 */	
 
-
 * to do:
 	* check mvdevcode: include?
-	
 
 * **********************************************************************
 * 0 - setup
@@ -196,7 +194,6 @@
 * Item 2 (Qualtrics var names "Q2#covid" & "Q2#year"): How true are these 
 * statements about your household’s food situation in the year before the 
 * COVID-19 outbreak and since the COVID-19 outbreak on March 11th? 
-
 
 * same process as above; label variables
 
@@ -1233,10 +1230,22 @@ foreach v of varlist *_fut {
 	*recode 					num_people_under5 num_people_517 num_people_1865 num_people_65up (-99 = 0)
 	
 	tab1 					num_people*, miss	
-
 	
-* Item 20 (Qualtrics var name Q20) - Which of the following best describes your 
-* current occupation
+* create new variable for total household number  
+	egen 					total_hh_num = rowtotal(num_people_under5 num_people_517 num_people_1865 num_people_65up)
+	label var 				total_hh_num "Total Household Size" 
+	tab 					total_hh_num 
+
+* create new variable for household size variable 
+	gen 					householdsize =. 
+	replace 				householdsize = 1 if total_hh_num <=2 
+	replace 				householdsize = 2 if total_hh_num >= 3 & total_hh_num <=5 
+	replace 				householdsize = 3 if total_hh_num >=6 
+	label var 				householdsize "Household Size Categories" 
+	label def 				householdsize 1 "1-2 members" 2 "3-5 members" 3 "6 or more members" 
+	label values 			householdsize householdsize 
+	
+* Item 20 (Qualtrics var name Q20) - Which of the following best describes your current occupation
 
 	*labels for Q20 
 
@@ -1266,6 +1275,10 @@ foreach v of varlist *_fut {
 	
 * Item 21 (Qualtrics var name Q21b) - What is your ZIP Code?
 
+*STATE: Q21a - What state do you live in? * 
+rename Q21a state 
+label var state "State of Residence" 
+
 * Labels for Q21b
 	
 	rename 					q21b zipcode
@@ -1286,6 +1299,14 @@ foreach v of varlist *_fut {
 	replace					year_born= .a if year_born == -99
 	
 	tab1 					year_born, miss 	
+	
+*Generate Age Variable =  Year 2020 - Year of Birth* 
+generate age_estimate = 2020 - year_born
+label var  age_estimate "Estimated Age 2020 - YOB"
+
+
+*Generate Variable for Age Categories* 
+recode age_estimate (18/29 = 1 "18-29") (30/45 = 2 "30-45") (46/60 = 3 "46-60") (61/100 = 4 "61+"), generate (agecat) 
 	
 	
 * Item 23 (Qualtrics var name Q24) - Are you of Hispanic, Latino, or Spanish Origin?
@@ -1343,6 +1364,7 @@ foreach v of varlist *_fut {
 	
 	
 	tab						income, miss
+	*** will want to use income from screener - but this cleaned anyway 
 	
 	
 * Item 26 (Qualtrics var name Q28) - How long have you lived in the United States?
@@ -1402,6 +1424,7 @@ foreach v of varlist *_fut {
 
 * save "food_security_data_cleaned.dta", replace
 * save "food_security_data_cleaned.csv", replace
+	*** also export as excel? 
 
 
 * close the log
