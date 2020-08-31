@@ -38,7 +38,7 @@
 	
 * start log
 	cap log off 
-	log using "", replace
+	log using "G:\My Drive\UA-NFACT\logs\cleaning_v3_alj", replace
 	*** will need to enter file
 
 * ***********************************************************************
@@ -47,7 +47,7 @@
 
 * load data
 	clear
-	import excel "", sheet("Sheet0") firstrow case(lower)
+	import excel "G:\My Drive\UA-NFACT\data\raw\azdata-numbers2.xlsx", sheet("Sheet0") firstrow case(lower)
 	*** put in file name
 	drop in 1	 
 	*** as exported without modifications in excel, will need to drop first row, as it is just a repeat of the labels 
