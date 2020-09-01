@@ -2,7 +2,7 @@
 * created on: July 2020
 * created by: fd + lm 
 * edited by: alj, fa 
-* last edited: 31 August 2020 
+* last edited: 1 September 2020 
 * Stata v.15.1 / 16 
 
 * does
@@ -187,10 +187,11 @@
 	label var			`v'_since "Used `v' since COVID"
 	}	   
 	   
+	drop 				*_prior_since
+   	   
 	tab1 				*_since, miss
 	sum 				*_since
 	
-	drop 				*_prior_since
 
 * Item 2 (Qualtrics var names "Q2#covid" & "Q2#year"): How true are these 
 * statements about your household’s food situation in the year before the 
@@ -205,8 +206,6 @@
 	
 	
 	tab1 				usda_foodlast* usda_afford*, miss	
-	sum 				usda_foodlast* usda_afford*
-
 
 * --> The food that my household bought just didn't last, and I/we didn't 
 * have money to get more (year before): usda_foodlast_year
@@ -222,7 +221,7 @@
 		replace 		`v' = 99 if `v'_temp == "99"
 		replace 		`v' = . if `v'_temp == "-99"
 		label def 		`v'_lab2_1 1 "Never true" 2 "Sometimes true" ///
-							3 "Often true" 					
+							3 "Often true" 99 "Do not know"					
 		label values 	`v' `v'_lab2_1
 		drop 			*_temp		 
           }
@@ -243,6 +242,7 @@
 	    replace 		`v' = 2 if `v'_temp == "2"
 	    replace 		`v' = 3 if `v'_temp == "3"
 		replace 		`v' = 99 if `v'_temp == "0"
+		replace 		`v' = 99 if `v'_temp == "99"
 		replace 		`v' = . if `v'_temp == "-99"
 		label def 		`v'_lab2_1 1 "Never true" 2 "Sometimes true" 3 "Often true" ///
 							99 "Do not know"
@@ -287,6 +287,7 @@
 
 * Item 2B: (Qualtrics var name "Q2b#covid" and "Q2b#year"): How often did you 
 * cut the size of your meals or skip meals?
+* only respond if you did cut the size of your meals (per usda_cutskip*)
 
 	lab var				usda_oftencut_year "USDA: How Often Cut/Skip Meals (year)"
 	lab var				usda_oftencut_covid "USDA: How Often Cut/Skip Meals (COVID)"
@@ -395,7 +396,7 @@
 	tab1 				*_prior, miss 
 	
 * source_X_since where 0 = used before and 1 = used since
-	foreach v of varlist source_* {
+	foreach v of varlist prog_* {
 	gen 				`v'_since = .
 	replace 			`v'_since = . if `v' == .
 	replace 			`v'_since = 0 if `v' == 4 | `v' == 2
@@ -403,10 +404,11 @@
 	label var			`v'_since "Used `v' since COVID"
 	}	   
 	   
+	drop 				*_prior_since   
+	   
 	tab1 				*_since, miss
 	sum 				*_since
 	
-	drop 				*_prior_since
 	
 * Item 3A (Qualtrics var name "Q3a"): Please indicate your level of agreement 
 * regarding using SNAP (or Food Stamps) food benefits since the COVID-19 
@@ -577,6 +579,7 @@ foreach v of varlist pantry_* {
 * Item 3E (Qualtrics var name "Q3e") : Please indicate your level of agreement
 * regarding concerns and barriers to using income-based food programs and food 
 * pantries since the COVID-19 outbreak.
+* skips apply here - only respond to these if you use these programs 
 	
 * label prog vars
 
@@ -698,7 +701,8 @@ foreach v of varlist trans_* {
 		   replace 			`v' = 4 if `v'_temp == "4"
 		   replace			`v' = 88 if `v'_temp == "88"
 		   replace			`v' = . if `v'_temp == "-99"
-		   lab def 			`v'_lab5  1 "Never" 2 "Sometimes" 3 "Usually" 4 "Every time" 88 "Not Applicable"
+		   lab def 			`v'_lab5  1 "Never" 2 "Sometimes" 3 "Usually" 4 "Every time" ///
+								88 "Not Applicable"
 		   lab val 			`v'  `v'_lab5
 			drop 			*_temp	
 		   }	
@@ -805,7 +809,8 @@ foreach v of varlist trans_* {
 		   drop 				money_temp
 		   }	
 
-tab money*, miss 	
+			tab 			money*, miss
+			sum 			money*
 						
 *binary variables for money where 1 = money received before COVID and 0 otherwise 
 	foreach v of varlist money* {
@@ -908,9 +913,9 @@ foreach v of varlist worry_* {
 	   	drop 			*_temp	
 	   }	
 
-
 	tab1 				worry_*, miss 
 	sum 				worry_*
+	*** labels between 1 and 6 were unclear
 
  
 * Item 10A (Qualtrics var name "Q10#cur") Which of the following 
@@ -1063,10 +1068,12 @@ foreach v of varlist *_fut {
 
 	gen 				diet_change = .
 	replace 			diet_change = 1 if diet_change_allergy == "1" | diet_change_sensitive == "1" | ///
-							diet_change_health == "1"|diet_change_religion == "1" |diet_veg == "1"|diet_weight == "1" |diet_other == "1"
+							diet_change_health == "1"|diet_change_religion == "1" ///
+							|diet_veg == "1"|diet_weight == "1" |diet_other == "1"
 	replace 			diet_change = 0 if diet_special == 8
 	replace 			diet_change = -99 if diet_change_allergy == "-99" | diet_change_sensitive == "-99" ///
-							| diet_change_health == "-99"|diet_change_religion == "-99" |diet_veg == "-99"|diet_weight == "-99" |diet_other == "-99"
+							| diet_change_health == "-99"|diet_change_religion == "-99" ///
+							|diet_veg == "-99"|diet_weight == "-99" |diet_other == "-99"
 	label var 			diet_change "Hard to meet special diet needs since COVID"
 	
 * Item 12 (codebook question 12) - The next questions are about how you have
@@ -1094,7 +1101,9 @@ foreach v of varlist *_fut {
 * the following statements regarding eating during the COVID-19 outbreak
 * (since March 11th)
 	
-	label define 			eathabits 1 "Strongly disagree" 2 "Disagree" 3 "Neither agree nor disagree" 4 "Agree" 5 "Strongly agree" 88 "Not applicable"
+	label define 			eathabits 1 "Strongly disagree" 2 "Disagree" ///
+								3 "Neither agree nor disagree" 4 "Agree" ///
+								5 "Strongly agree" 88 "Not applicable"
 	
 	label values 			eathabits_emotional eathabits_lonely eathabits_stress eathabits_comfort eathabits
 	
@@ -1195,7 +1204,7 @@ foreach v of varlist *_fut {
 	foreach v of varlist persp* {
 	destring 		`v', replace
 	replace 		`v' = . if `v' < = 0 & `v' != -99
-	label define 	`v'_persp 1 "1 (strongly disagree)" 2 "2" 3 "3" 4 "4" 5 "5" 6 "6 (strongly agree)" 99 "." -99 "."
+	label define 	`v'_persp 1 "1 (strongly disagree)" 2 "2" 3 "3" 4 "4" 5 "5" 6 "6 (strongly agree)" 99 "99" -99 "."
 	label values 	`v' `v'_persp
 	}
 	
@@ -1239,13 +1248,13 @@ foreach v of varlist *_fut {
 	
 * binary variables
 	
-	*split 				know, p(,) destring
-	*egen				Yes_Family_dummy = anymatch ( know1 know2 know3 know4), v(1)
-	*egen				Yes_Friends_dummy = anymatch ( know1 know2 know3 know4), v(2)
-	*egen				Yes_Myself_dummy = anymatch ( know1 know2 know3 know4), v(3)
-	*egen				Yes_Other_dummy = anymatch ( know1 know2 know3 know4), v(4)
-	*egen				No_dummy = anymatch ( know1 know2 know3 know4), v(5)
-	*drop 				know*
+	split 				know, p(,) destring
+	egen				Yes_Family_dummy = anymatch ( know1 know2 know3 know4), v(1)
+	egen				Yes_Friends_dummy = anymatch ( know1 know2 know3 know4), v(2)
+	egen				Yes_Myself_dummy = anymatch ( know1 know2 know3 know4), v(3)
+	egen				Yes_Other_dummy = anymatch ( know1 know2 know3 know4), v(4)
+	egen				No_dummy = anymatch ( know1 know2 know3 know4), v(5)
+	drop 				know*
 	
 	tab1 					know*, miss	
 	sum 					know* 
@@ -1291,7 +1300,7 @@ foreach v of varlist *_fut {
 * create new variable for total household number  
 	egen 					total_hh_num = rowtotal(num_people_under5 num_people_517 num_people_1865 num_people_65up)
 	label var 				total_hh_num "Total Household Size" 
-	tab 					total_hh_num 
+	tab1 					total_hh_num 
 
 * create new variable for household size variable 
 	gen 					householdsize =. 
@@ -1355,11 +1364,13 @@ foreach v of varlist *_fut {
 	
 	tab1 					year_born, miss 	
 	
-*generate age variable = year 2020 - year of birth 
+* generate age variable = year 2020 - year of birth 
 	generate 				age_estimate = 2020 - year_born
 	label var  				age_estimate "Estimated Age 2020 - YOB"
+	tab1 					age_estimate, missing
+	sum 					age_estimate
 
-*generate Variable for age categories
+* generate variable for age categories
 	recode 					age_estimate (18/29 = 1 "18-29") (30/45 = 2 "30-45") ///
 								(46/60 = 3 "46-60") (61/100 = 4 "61+"), generate (agecat) 
 	
@@ -1381,7 +1392,7 @@ foreach v of varlist *_fut {
 	
 	egen 					hispanic_d = anymatch (ethnicity), v(1,2,3,4)
 	label var				hispanic_d "Hispanic Origin"
-
+	tab 					hispanic_d
 	
 * Item 24 (Qualtrics var name Q25) - What is your race? Check all that apply:
 
@@ -1481,6 +1492,7 @@ foreach v of varlist *_fut {
 * save "food_security_data_cleaned.dta", replace
 * save "food_security_data_cleaned.csv", replace
 	*** also export as excel? 
+	*** update saving location 
 
 
 * close the log
