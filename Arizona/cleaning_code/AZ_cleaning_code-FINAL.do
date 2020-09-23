@@ -2,7 +2,7 @@
 * created on: July 2020
 * created by: fd + lm 
 * edited by: alj, fa 
-* last edited: 1 September 2020 
+* last edited: 23 September 2020 
 * Stata v.15.1 / 16 
 
 * does
@@ -398,7 +398,12 @@ tostring usda_oftencut_year usda_oftencut_covid, replace
 		
 tab usda_cutskip_year usda_oftencut_year, miss		
 replace	usda_cutskip_year = 1 if usda_oftencut_year == 1 | usda_oftencut_year == 2 | usda_oftencut_year == 3 /* ADDED */ 
-tab usda_cutskip_year usda_oftencut_year, miss		
+tab usda_cutskip_year usda_oftencut_year, miss	
+
+
+tab usda_oftencut_covid, miss
+tab usda_oftencut_covid, nola
+
 		
 		
 	foreach v of varlist usda_oftencut_covid{
@@ -409,7 +414,7 @@ tab usda_cutskip_year usda_oftencut_year, miss
 	    replace 		`v' = 2 if `v'_temp == "2"
 		replace 		`v' = 3 if `v'_temp == "3"
 		replace		    `v' = . if `v'_temp == "-99"
-		label def 		`v'oftencutcv 1 "Once" 2 "Twice" 3 "Weekly" 4 "Daily"		
+		label def 		`v'oftencutcv 1 "Only one or two weeks" 2 "Some weeks but not every week" 3 "Almost every week" 	
 		label values 	`v' `v'oftencutcv
 		drop 			*_temp		 
           }
@@ -466,7 +471,8 @@ replace FSS_since = FSS_since + 1  if usda_cutskip_covid==1
 *6
 tab usda_oftencut_covid, miss 
 tab usda_oftencut_covid, miss nola
-replace FSS_since = FSS_since + 1  if usda_oftencut_covid==3  /* NEED TO DOUBLE CHECK! */
+replace FSS_since = FSS_since + 1  if usda_oftencut_covid==2  
+replace FSS_since = FSS_since + 1  if usda_oftencut_covid==3
 
 tab FSS_since, miss	
 	
@@ -526,7 +532,8 @@ replace FSS_prior = FSS_prior + 1  if usda_cutskip_year==1
 *6
 tab usda_oftencut_year, miss 
 tab usda_oftencut_year, miss nola
-replace FSS_prior = FSS_prior + 1  if usda_oftencut_year==3  /* NEED TO DOUBLE CHECK! */
+replace FSS_prior = FSS_prior + 1  if usda_oftencut_year==2
+replace FSS_prior = FSS_prior + 1  if usda_oftencut_year==3  
 
 tab FSS_prior, miss	
 	
@@ -1986,7 +1993,7 @@ tabstat FSS_since [aw=WEIGHTS], by(scrn_income) stat(mean)
 tab scrn_income FOOD_SECURITY_since, row
 tab scrn_income FOOD_SECURITY_since [aw=WEIGHTS], row
 
-save "AZ_wave1 - step 1 (9_15_20).dta"
+save "AZ_wave1 - step 1 (9_23_20).dta"
 
 
 * close the log
