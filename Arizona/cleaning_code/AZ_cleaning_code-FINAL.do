@@ -2,7 +2,7 @@
 * created on: July 2020
 * created by: fd + lm 
 * edited by: alj, fa 
-* last edited: 6 September 2020 
+* last edited: 1 September 2020 
 * Stata v.15.1 / 16 
 
 * does
@@ -140,10 +140,18 @@ bysort scrn_hisplat_origin: tab RACE scrn_race, miss
 	label var				scrn_educ "Screen: Education"						/* NOT LABELED */
 tab scrn_educ, miss
 destring scrn_educ, replace
-label define education   1 "1=Less than HS" 2 "2=HS" 3 "3=Some college" 4 "4=Associates degree" 5 "5=College degree" 6 "6=More advanced degree"	
-label value	scrn_educ education
-tab scrn_educ, miss
-	
+
+gen EDUC = . 
+replace EDUC = 1 if scrn_educ==1 | scrn_educ==2
+replace EDUC = 2 if scrn_educ==3
+replace EDUC = 3 if scrn_educ==4
+replace EDUC = 4 if scrn_educ==5
+replace EDUC = 5 if scrn_educ==6
+label define education   1 "1=HS or less" 2 "2=Some college" 3 "3=Associates degree" 4 "4=College degree" 5 "5=More advanced degree" 
+label value	EDUC education
+tab EDUC scrn_educ, miss
+
+
 		
 	rename					qs11 scrn_income
 tab scrn_income, miss
@@ -657,14 +665,14 @@ tab FOOD_SECURITY_prior FOOD_SECURITY_since, cell
 * rename text response vars to keep them out of encoding loop below
 
 	rename				q3atxt text_othercomments_snap
-	rename 				snap_usefull snap_useful
+	rename 				snap_usefull snap_unable
 	
 * label SNAP vars
 
-	lab var 			snap_easy "SNAP: Participation"
+	lab var 			snap_easy   "SNAP: Easy to use"
 	lab var				snap_enough "SNAP: Enough"
 	lab var				snap_online "SNAP: Online"
-	lab var				snap_useful "SNAP: Useful"
+	lab var				snap_unable "SNAP: Unable to use all benefits"
 	lab var				text_othercomments_snap "SNAP: Other comments"
 
 * loop to recode, appends "temp" to source vars and renames encoded vars
@@ -698,13 +706,14 @@ tostring snap_*, replace
 * regarding using WIC benefits since the COVID-19 outbreak.
 
 	rename				q3btxt text_othercomments_wic
+	rename 				wic_useful wic_unable
 	
 * label WIC vars
 
-	lab var 			wic_easy "WIC: Participation"
+	lab var 			wic_easy "WIC: Easy"
 	lab var				wic_limited "WIC: Limited"
 	lab var				wic_online "WIC: Online"
-	lab var				wic_usefull "WIC: Useful"
+	lab var				wic_unable "WIC: Unable to use all benefits"
 	lab	var				text_othercomments_wic "WIC: Other Comments"
 
 * loop to recode, appends "temp" to source vars and renames encoded vars
@@ -866,6 +875,8 @@ tab prog_anyuse_since, miss
 * loop to recode, appends "temp" to source vars and renames encoded vars
 
 tostring foodprog_*, replace
+
+tab1 				foodprog_*, miss 
 	
 foreach v of varlist foodprog_* {    
 	   rename 			`v' `v'_temp
@@ -877,7 +888,7 @@ foreach v of varlist foodprog_* {
 	   replace 			`v' = 4 if `v'_temp == "4"
 	   replace 			`v' = 5 if `v'_temp == "5" 
 	   replace			`v' = . if `v'_temp == "-99"
-	   replace 			`v' = .a if prog_anyuse_since == 0 				/* Changed 'prog_nouse' into 'prog_nouse_since' */
+	  *replace 			`v' = .a if prog_anyuse_since == 0 				/* NO! There is no skip pattern here! */		   
 	   lab def 			`v'_lab3e  1 "Strongly disagree" 2 "Disagree" 3 "Neither agree nor disagree" 4 "Agree" 5 "Strongly agree"
 	   lab val 			`v'  `v'_lab3e
 	   	drop 			*_temp	
@@ -885,6 +896,7 @@ foreach v of varlist foodprog_* {
 
 	tab1 				foodprog_*, miss 
 	sum					foodprog_*
+
 	
 
 * Item 4 (Qualtrics var name "Q4"):	What were the typical types of transportation 
@@ -1633,14 +1645,23 @@ tab know, miss
 	egen				Yes_Friends_dummy = anymatch (temp1 temp2 temp3 temp4), v(2)
 	egen				Yes_Myself_dummy  = anymatch (temp1 temp2 temp3 temp4), v(3)
 	egen				Yes_Other_dummy   = anymatch (temp1 temp2 temp3 temp4), v(4)
-	egen				No_dummy          = anymatch (temp1 temp2 temp3 temp4), v(5)
+*	egen				No_dummy          = anymatch (temp1 temp2 temp3 temp4), v(5)
 	drop 				temp*
 	
-	
-	
+		
 	tab1 					know* Yes*dummy, miss	
-
 	
+	
+
+*** Know anyone (including self) with covid ***
+
+gen KNOW_ANY1_COVID = .
+label var KNOW_ANY1_COVID "Do you anyone with symptoms of, or diagnosed with, the coronavirus (COVID-19)" 
+replace KNOW_ANY1_COVID = 0 if know==5
+replace KNOW_ANY1_COVID = 1 if KNOW_ANY1_COVID==. & know!=.
+tab know KNOW_ANY1_COVID, miss
+
+
 	
 * Item 18 (Qualtrics var name Q18) - Have you had to quarantine in your home due 
 * to coronavirus (for example because of illness or exposure symptoms)?
@@ -1893,7 +1914,22 @@ tab q29
 	label var				text_political "Text: Political Affiliation"
 	replace 				text_political = "." if text_political == "-99"			 /* Changed .a to . */ 
 	tab						political, miss	
-		
+
+	
+*
+gen POLITICAL = . 
+label var POLITICAL "Political Affiliation (fewer categories)" 
+replace POLITICAL = 1 if political == 1
+replace POLITICAL = 2 if political == 3
+replace POLITICAL = 3 if political == 5
+replace POLITICAL = 4 if political == 7
+replace POLITICAL = 5 if POLITICAL == . & political != -99
+tab political POLITICAL, miss
+
+label define politics 1 "1=Democrat"  2 "2=Independent"  3 "3=No affiliation"  4 "4=Republican"  5 "5=Other"
+label values POLITICAL politics 	
+	
+	
 	
 * Item 28 (Qualtrics var name Q30) - Do you have any additional comments or
 * experiences related to the issue of food during the COVID-19 outbreak that you
@@ -1950,7 +1986,7 @@ tabstat FSS_since [aw=WEIGHTS], by(scrn_income) stat(mean)
 tab scrn_income FOOD_SECURITY_since, row
 tab scrn_income FOOD_SECURITY_since [aw=WEIGHTS], row
 
-save "AZ_wave1 - step 1 (9_5_20).dta"	
+save "AZ_wave1 - step 1 (9_15_20).dta"
 
 
 * close the log
