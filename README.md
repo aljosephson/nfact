@@ -21,15 +21,19 @@ As described in more detail below, scripts various go through each step, from cl
 
 ## Data cleaning
 
-The code in `file.do` (to be done - update with real name) replicates the data cleaning and analysis.
+The code shared replicates the data cleaning and analysis.
 
 ### Pre-requisites
 
-#### Stata req's
-
-  * The data processing and analysis requires a number of user-written Stata programs:
-    1. `estout`
-    2. `customsave`
+ - Data should be extracted following these instructions: 
+ - From Qualtrics: Data & Analysis → Export Data 
+ - Click on the Excel tab to download the data as an Excel file (rather than CSV, which is the default)
+ - Unclick ‘Use choice text’ and select ‘Use numeric values’
+ - From the ‘More Options panel (right below): 
+ - Select ‘Recode seen but unanswered questions as -99’ 
+ - Select ‘Recode seen but unanswered multi-value fields as 0’’. Here, manually change the ‘0’ into a ‘-99’. This is IMPORTANT! 
+ - Make sure the option "Split multi-value fields into columns" is unchecked 
+ - Then, download the data!
 
 #### Folder structure
 
