@@ -25,7 +25,7 @@ The code shared replicates the data cleaning and analysis.
 
 ### Pre-requisites
 
- - Data should be extracted following these instructions: 
+Data should be extracted following these instructions: 
  - From Qualtrics: Data & Analysis → Export Data 
  - Click on the Excel tab to download the data as an Excel file (rather than CSV, which is the default)
  - Unclick ‘Use choice text’ and select ‘Use numeric values’
