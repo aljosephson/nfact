@@ -15,7 +15,7 @@ This README describes the directory structure & should enable users to replicate
 
 This is the repo for NFACT.<br>
 
-Contributors: *add link to NFACT page*
+Contributors include members of NFACT: https://www.nfactresearch.org/. 
 
 As described in more detail below, scripts various go through each step, from cleaning raw data to analysis.
 
@@ -34,31 +34,3 @@ Data should be extracted following these instructions:
  - Select ‘Recode seen but unanswered multi-value fields as 0’’. Here, manually change the ‘0’ into a ‘-99’. This is IMPORTANT! 
  - Make sure the option "Split multi-value fields into columns" is unchecked 
  - Then, download the data!
-
-#### Folder structure
-
-The *link to GoogleDrive / other appropriate location* provides more details on the data cleaning.
-
-The general repo structure looks as follows:<br>
-
-```stata
-nfact
-├────README.md
-├────file.do
-│    
-├────country & state       /* one dir for each state / national survey */
-|    ├──sub-state          /* one dir for each sub survey within a state */
-│       ├──cleaning_code        
-│       ├──regression_code
-│       └──output
-│          ├──tables
-│          └──figures
-│
-│────Analysis              /* overall analysis */
-│    ├──code
-│    └──output
-│       ├──tables
-│       └──figures
-│   
-└────config
-```
