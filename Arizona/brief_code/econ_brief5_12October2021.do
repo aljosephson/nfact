@@ -29,15 +29,12 @@
 	*log close 
 	
 	*log using "C:\Users\aljosephson\Dropbox\COVID\COVID AZ Analysis and Briefs\Briefs\Round 2\Economy\alj_econ_brief2.smcl", append 
-	*log using SAM'S PATHWAY  
 	
 * ***********************************************************************
 * 1 - Importing data													*
 * ***********************************************************************
 
 	use 		"C:\Users\aljosephson\Dropbox\COVID\COVID AZ Analysis and Briefs\Data\2nd round\AZ_wave2 (8_5_21).dta"
-	*save using SAM'S PATHWAY  
-
 	
 * ***********************************************************************
 * 2 - single variable tables 										    *
@@ -135,18 +132,15 @@
 	label 		values children_hh_dummy hh_child
 	
 	graph 		hbar, over(job_loss) over( children_hh_dummy ) blabel(bar) title(Breakdown of Job Loss by Households with children)
-	
-******* SAM STOP HERE !! **********	
-	
+		
 * examine changes in job status 
 
 * changes in employment status since the outbreak
-** WILL BECOME FIG 0
+** WILL BECOME FIG 1
 	tab 		job_loss [aw=WEIGHTS] if job_anychange!=.
 	tab 		job_hours [aw=WEIGHTS] if job_anychange!=.
 	tab 		job_furlo [aw=WEIGHTS] if job_anychange!=.
-	tab 		job_anychange [aw=WEIGHTS]
-
+	
 * changes in employment status since the outbreak by race/ethnicity (using a modified version of the race/ethnicity variable)
 * create modified race / ethnicity variable 
 	gen race_3 = .
@@ -156,30 +150,30 @@
 	label define race_3 0 "Hispanic" 1 "NH White" 2 "Other"
 	label var race_3 "three category race variable"
 
-** TRIAL FIGURE 1 **
+** TRIAL FIGURE 2 **
 	tab 		race_3 job_anychange  [aw=WEIGHTS], row
 
 * changes in employment status since the outbreak by income group
-** TRIAL FIGURE 2 ** 
+** TRIAL FIGURE 3 ** 
 	tab 		scrn_inc_4CAT job_anychange [aw=WEIGHTS], row
 
 * include changes in food security associated with job changes 
 
 * changes in food security by change in employment status  
-** TRIAL FIGURE 3 ** 
+** TRIAL FIGURE 4 ** 
 	tab 		FOOD_SECURITY_last4 job_anychange [aw=WEIGHTS], col
 
 	tabstat 	FOOD_SECURITY_last4 [aw=WEIGHTS], by(job_anychange) stat(mean)
 
 * changes in food security by change in employment status by income group
-** TRIAL FIGURE 4 **
+** TRIAL FIGURE 5 **
 	tabstat 	FOOD_SECURITY_last4 [aw=WEIGHTS] if job_anychange==1, by(scrn_inc_4CAT) stat(mean N)
 	tabstat 	FOOD_SECURITY_last4 [aw=WEIGHTS] if job_anychange==0, by(scrn_inc_4CAT) stat(mean N)
 
 * changes in food security by change in employment status by children in the hh
-** TRIAL FIGURE 5 **
-	tabstat 	FOOD_SECURITY_last4 [aw=WEIGHTS] if job_anychange==1, by(CHILDREN_inHH) stat(mean N)
-	tabstat 	FOOD_SECURITY_last4 [aw=WEIGHTS] if job_anychange==0, by(CHILDREN_inHH) stat(mean N)
+** EXCLUDE ** 
+	/*tabstat 	FOOD_SECURITY_last4 [aw=WEIGHTS] if job_anychange==1, by(CHILDREN_inHH) stat(mean N)
+	tabstat 	FOOD_SECURITY_last4 [aw=WEIGHTS] if job_anychange==0, by(CHILDREN_inHH) stat(mean N)*/
 
 * changes in food security by change in employment status by race/ethnicity
 ** TRIAL FIGURE 6** 
@@ -196,11 +190,7 @@
 	tabstat worry_housefood_BIN [aw=WEIGHTS] , by(job_anychange) stat(mean N)
 	tabstat worry_income_BIN [aw=WEIGHTS] , by(job_anychange) stat(mean N)
 	tabstat worry_programs_BIN [aw=WEIGHTS] , by(job_anychange) stat(mean N)	
-	
-* habits by job change
-** TRIAL FIGURE 8 **
 
-* WILL EXPLORE LATER
 
 * ***********************************************************************
 * 5 - FOR LATER														    *
