@@ -5,7 +5,7 @@
 * Created on 5 October 2020 
 * Created by Freddy D.
 * edits added by alj 
-* updated 12 October 2021
+* updated 13 October 2021
 * Stata v.16.1
 
 * does
@@ -120,7 +120,7 @@
 * ***********************************************************************
 * 4 - graphs														    *
 * ***********************************************************************
-		
+	/*	
 	catplot 	RACE_ET job_loss, percent(job_loss) asyvars stack subtitle(Percent of Job Loss by Race)
 	
 	catplot 	job_anychange RACE_ET, percent(RACE_ET) asyvars stack subtitle(Percent of any Change in Job Status by Race)
@@ -131,7 +131,12 @@
 	label 		define hh_child 0 "HH w/o Children" 1 "HH with Children"
 	label 		values children_hh_dummy hh_child
 	
-	graph 		hbar, over(job_loss) over( children_hh_dummy ) blabel(bar) title(Breakdown of Job Loss by Households with children)
+	graph 		hbar, over(job_loss) over( children_hh_dummy ) blabel(bar) title(Breakdown of Job Loss by Households with children) */
+		
+	
+* ***********************************************************************
+* 5 - figures for brief														    *
+* ***********************************************************************		
 		
 * examine changes in job status 
 
@@ -193,7 +198,7 @@
 
 
 * ***********************************************************************
-* 5 - FOR LATER														    *
+* 6 - FOR LATER														    *
 * ***********************************************************************
 	
 *** THESE VARIABLES / QUESTIONS ARE NOT YET CLEANED FOR USE IN ROUND 2 DATA	
@@ -248,7 +253,7 @@
 */
 	
 * ***********************************************************************
-* 6 - end matter													    *
+* 7 - end matter													    *
 * ***********************************************************************	
 
 	compress
