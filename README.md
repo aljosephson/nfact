@@ -7,22 +7,15 @@ This README describes the directory structure & should enable users to replicate
 ## Index
 
  - [Introduction](#introduction)
- - [Data cleaning](#data-cleaning)
  - [Pre-requisites](#pre-requisites)
 
 ## Introduction
 
 This is the repo for NFACT.<br>
 
-Contributors include members of NFACT: https://www.nfactresearch.org/. 
+Contributors include members of NFACT. More information about the group is available: https://www.nfactresearch.org/. 
 
-As described in more detail below, scripts various go through each step, from cleaning raw data to analysis.
-
-## Data cleaning
-
-The code shared replicates the data cleaning and analysis.
-
-### Pre-requisites
+### Pre-requisites & Details about Downloads
 
 Data should be extracted following these instructions: 
  - From Qualtrics: Data & Analysis → Export Data 
