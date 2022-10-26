@@ -13,9 +13,7 @@ Last update: May 2022.
 
 ## Introduction
 
-This is the repo for NFACT.<br>
-
-Contributors include members of NFACT. More information about the group is available: https://www.nfactresearch.org/. 
+This is the repo for the National Food Access and COVID Research Team (NFACT). Contributors include members of NFACT. More information about the group is available: https://www.nfactresearch.org/. 
 
 ### Pre-requisites & Details about Downloads
 
@@ -28,3 +26,6 @@ Data should be extracted following these instructions:
  - Select ‘Recode seen but unanswered multi-value fields as 0’’. Here, manually change the ‘0’ into a ‘-99’. This is IMPORTANT! 
  - Make sure the option "Split multi-value fields into columns" is unchecked 
  - Then, download the data!
+ 
+ For more information about using these data, please contact Dr. Meredith Niles at mtniles@uvm.edu. 
+ For more information about this repo, please contact Dr. Anna Josephson at aljosephson@arizona.edu.
