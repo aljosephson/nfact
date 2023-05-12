@@ -5,6 +5,7 @@ This README describes the directory structure & should enable users to replicate
 <a href="https://zenodo.org/badge/latestdoi/279348981"><img src="https://zenodo.org/badge/279348981.svg" alt="DOI"></a>
 
 This repo was last updated: May 2022. 
+Repo not updated, for more information please contact: aljosephson@arizona.edu.
 
 ## Index
 
